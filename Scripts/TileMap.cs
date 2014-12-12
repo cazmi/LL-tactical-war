@@ -11,7 +11,15 @@ public class TileMap : MonoBehaviour {
 
 	public List<TileMapInfo> tiles = new List<TileMapInfo> ();
 	public List<TileMapInfo> inRangeTiles = new List<TileMapInfo>();
-
+	public enum TerrainType
+	{
+		Plain, 
+		Forest,
+		Desert,
+		Mountain,
+		Fort
+	}
+	public TerrainType terrainType;
 
 	MeshFilter meshFilter;
 	MeshRenderer meshRenderer;
@@ -33,7 +41,7 @@ public class TileMap : MonoBehaviour {
 	void Awake ()
 	{
 		instance = this;
-
+		
 		meshFilter = GetComponent<MeshFilter> ();
 		meshRenderer = GetComponent<MeshRenderer> ();
 		meshCollider = GetComponent<MeshCollider> ();
@@ -167,7 +175,7 @@ public class TileMap : MonoBehaviour {
 	{		
 		int pixelX = index - (tileX * (index / tileX));
 		int pixelY = index / tileX;
-
+		
 		highlightColor.a = 0.5f;
 		texture.SetPixel (pixelX, pixelY, highlightColor);
 		
@@ -248,7 +256,7 @@ public class TileMap : MonoBehaviour {
 
 		return new Vector3(
 			(vertices [vertex1_index].x + vertices [vertex2_index].x)/2,
-				1f,
+				0f,
 			(vertices [vertex1_index].z + vertices [vertex2_index].z)/2
 			);
 	}

@@ -99,7 +99,7 @@ public class TurnStateEnemyBot : MonoBehaviour {
 
 		if(tMan.currentTurn.attackEnabled)
 		{
-			tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileAttack);
+			tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileAttack);
 			for(int i=0; i < tMan.players.Count; i++)
 			{
 				if(tMap.inRangeTiles != null && tMap.inRangeTiles.Contains(tMap.tiles[tMan.players[i].tilePosition]))
@@ -116,10 +116,7 @@ public class TurnStateEnemyBot : MonoBehaviour {
 		{
 			if(tMan.currentTurn.moveEnabled)
 			{
-				tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileMove);
 				enemyState = EnemyState.Move;
-
-				ResetInRangeTiles();
 			}
 			else
 			{
@@ -135,7 +132,7 @@ public class TurnStateEnemyBot : MonoBehaviour {
 
 	void BotMove()
 	{
-		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileMove);
+		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileMove);
 		do {
 			destinationTile = tMap.inRangeTiles[Random.Range(0, tMap.inRangeTiles.Count)];
 		}while(!destinationTile.reachable);
@@ -175,7 +172,7 @@ public class TurnStateEnemyBot : MonoBehaviour {
 
 	void BotAttack()
 	{
-		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileAttack);
+		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileAttack);
 
 		if(tMap.inRangeTiles.Contains(tMap.tiles[pickedPlayer.tilePosition]))
 		{

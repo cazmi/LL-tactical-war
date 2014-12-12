@@ -24,7 +24,6 @@ public class PointerScript : MonoBehaviour {
 	
 	public void AdjustPosition(Vector3 position)
 	{
-		print ("position adjusted");
 		Vector3 temp = position;
 		temp.y = 10f;
 		transform.position = temp;
@@ -45,7 +44,6 @@ public class PointerScript : MonoBehaviour {
 				StartCoroutine(move(transform));
 			}
 		}
-		print (isMoving);
 	}
 	
 	public IEnumerator move(Transform transform) {
@@ -61,7 +59,7 @@ public class PointerScript : MonoBehaviour {
 			                          startPosition.y + System.Math.Sign(input.y) * tileSize, startPosition.z);
 		}
 		
-		while (t < 1.5f) {
+		while (t < 1f) {
 			t += Time.deltaTime * (moveSpeed/tileSize) * factor;
 			transform.position = Vector3.Lerp(startPosition, endPosition, t);
 			yield return null;

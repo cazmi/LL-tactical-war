@@ -6,6 +6,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 	Vector3 finalDestination;
 	Vector3 previousPosition;
+	Quaternion previousRotation;
 	//MeshCollider col;
 	TileMap tMap;
 	TurnManager tMan;
@@ -105,6 +106,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			tMan.players[i].isTurnOver = false;
 			tMan.players[i].attackEnabled = true;
 			tMan.players[i].moveEnabled = true;
+			tMan.players[i].waitEnabled = true;
 		}
 	}
 
@@ -132,12 +134,11 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			{
 				if(hitInfo.collider.tag == "Player")
 				{
+					print("test");
 					HumanPlayer chosenPlayer = hitInfo.collider.gameObject.GetComponent<HumanPlayer>();
 					int indexList = tMan.players.IndexOf(chosenPlayer);
 					tMan.currentTurn = tMan.players[indexList];
 
-					previousPosition = tMan.currentTurn.transform.position;
-					
 					if(!tMan.currentTurn.isTurnOver)
 						playerState = PlayerState.Menu;
 				}
@@ -198,7 +199,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			playerState = PlayerState.Menu;
 		}
 
-		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileMove);
+		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileMove);
 		
 		/*if (Input.GetMouseButtonDown (0)) 
 		{
@@ -215,6 +216,11 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			}
 		}*/
 
+		
+		previousPosition = tMan.currentTurn.transform.position;
+		previousRotation = tMan.currentTurn.transform.rotation;
+
+		
 		if(Input.GetKeyDown(KeyCode.Z))
 		{
 			if(Physics.Raycast(pointer.transform.position, -Vector3.up, out hitInfo, Mathf.Infinity))
@@ -235,8 +241,10 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	void MovingAnimation()
 	{
 		if(pf.GetPathList().Count != 0)
+		{
 			tMan.currentTurn.Move(pf.GetPathList());
-
+			pf.GetPathList();
+		}
 		if (tMan.currentTurn.transform.position == finalDestination) 
 		{	
 			PostMoveCondition();
@@ -247,6 +255,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	void CancelMove()
 	{
 		tMan.currentTurn.transform.position = previousPosition;
+		tMan.currentTurn.transform.rotation = previousRotation;
 
 		tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;	// enable previous occupied tile 								
 		tMan.currentTurn.tilePosition = tMap.WorldToTilePoint(previousPosition);
@@ -268,7 +277,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		tMap.tiles[tMan.currentTurn.tilePosition].reachable = false;	// disable current occupied tile
 		
 		ResetInRangeTiles();
-	
+		print ("player tile: " + tMan.currentTurn.tilePosition);
 		playerState = PlayerState.Menu;
 	}
 
@@ -280,7 +289,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			playerState = PlayerState.Menu;
 		}
 
-		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.tileAttack);
+		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileAttack);
 
 		/*if(Input.GetMouseButtonDown(0))
 		{
@@ -408,12 +417,12 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 				buttons[selectedMenu] = true;
 			}
 
-			if(buttons[0])
+			if(buttons[0] && tMan.currentTurn.moveEnabled)
 			{
 				playerState = PlayerState.Move;
 			}
 
-			if(buttons[1])
+			if(buttons[1] && tMan.currentTurn.attackEnabled)
 			{
 				playerState = PlayerState.Attack;
 			}

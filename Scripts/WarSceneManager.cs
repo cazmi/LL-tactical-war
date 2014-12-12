@@ -5,12 +5,12 @@ public class WarSceneManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+		//Instantiate(TurnManager.instance.currentTurn.gameObject, new Vector3(0,0,0), Quaternion.identity);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		StartCoroutine("DestroyScene");
+		//StartCoroutine("DestroyScene");
 	}
 
 	IEnumerator DestroyScene()

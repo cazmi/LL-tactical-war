@@ -10,10 +10,25 @@ public class TurnStateStart : MonoBehaviour {
 	BotEnemy enemy;
 	PointerScript ps;
 
+	/*BaseClass[] classTypes = new BaseClass[]{new Apprentice(), 
+											new Archer(), 
+											new Brawler(),
+											new Dragoon(),
+											new Fighter(),
+											new Thief()};*/
+	BaseClass[] classTypes; 
+
 	void Awake()
 	{
 		tm = TileMap.instance;	
 		ps = GameObject.Find("Pointer").GetComponent<PointerScript>();
+	
+		classTypes = new BaseClass[]{GameObject.Find("ClassContainer").GetComponent<Apprentice>(), 
+									GameObject.Find("ClassContainer").GetComponent<Archer>(), 
+									GameObject.Find("ClassContainer").GetComponent<Brawler>(),
+									GameObject.Find("ClassContainer").GetComponent<Dragoon>(),
+									GameObject.Find("ClassContainer").GetComponent<Fighter>(),
+									GameObject.Find("ClassContainer").GetComponent<Thief>()};
 	}
 
 	void Start()
@@ -38,6 +53,10 @@ public class TurnStateStart : MonoBehaviour {
 			player = ((GameObject)Instantiate(playerPref, tm.tiles[randPosition].position, playerPref.transform.rotation)).GetComponent<HumanPlayer>();
 			player.transform.parent = TurnManager.instance.tacticScene.transform;
 			player.tilePosition = randPosition;
+			player.playerClass = classTypes[i];
+
+			player.playerClass.TerrainEffect(tm.terrainType);
+
 			tm.tiles[randPosition].reachable = false;
 
 			tileLocationIndex.Remove(randPosition);
@@ -54,6 +73,10 @@ public class TurnStateStart : MonoBehaviour {
 			enemy = ((GameObject)Instantiate(enemyPref, tm.tiles[randPosition].position, enemyPref.transform.rotation)).GetComponent<BotEnemy>();
 			enemy.transform.parent = TurnManager.instance.tacticScene.transform;
 			enemy.tilePosition = randPosition;
+			enemy.playerClass = classTypes[i];
+
+			enemy.playerClass.TerrainEffect(tm.terrainType);
+
 			tm.tiles[randPosition].reachable = false;
 			
 			tileLocationIndex.Remove(randPosition);
@@ -64,7 +87,7 @@ public class TurnStateStart : MonoBehaviour {
 		// decide who goes first based on scenario (?)
 		ChooseWhoGoesFirst ();
 
-		// summon pointer
+		// position pointer to first human player
 		ps.AdjustPosition(TurnManager.instance.players[0].transform.position);
 	}
 

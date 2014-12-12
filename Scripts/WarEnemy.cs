@@ -13,7 +13,7 @@ public class WarEnemy : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		StartCoroutine("Advance");
+		//StartCoroutine("Advance");
 	}
 
 	IEnumerator Advance()
