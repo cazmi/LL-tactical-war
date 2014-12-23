@@ -32,14 +32,13 @@ public class TurnManager : MonoBehaviour {
 		EnemyTurn,
 		EndGame
 	}
+	public TurnState turnState;
 
 	public enum FirstTurn
 	{
 		Player,
 		Enemy
 	}
-
-	public TurnState turnState;
 	public FirstTurn firstTurn;
 
 	void Awake()

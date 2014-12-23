@@ -13,13 +13,24 @@ public class Player : MonoBehaviour {
 	public bool attackEnabled;
 	public bool waitEnabled;
 
-	protected Transform body;
-
 	public BaseClass playerClass;
+	public BaseWeapon playerWeapon;
 
-	void Start()
+	protected int currentHealth;
+	public bool isAlive;
+	protected Animator anim;
+
+	protected virtual void Awake()
+	{
+		anim = GetComponent<Animator>();
+	}
+
+	protected virtual void Start()
 	{
 		isTurnOver = false;
+
+		currentHealth = playerClass.BaseHP;
+		isAlive = true;
 	}
 
 	public void Move(List<TileMapInfo> tmi)
@@ -55,7 +66,6 @@ public class Player : MonoBehaviour {
 			tmi.Remove(tmi[tmi.Count-1]);
 			destination = tmi [tmi.Count-1].position;
 		}
-		print (destination);
 
 		if (Vector3.Distance (transform.position, destination) > 0.1f) {
 			transform.position += (destination - transform.position).normalized * moveSpeed * Time.deltaTime;
@@ -68,8 +78,25 @@ public class Player : MonoBehaviour {
 			}
 		}
 	}
+	
+	public void TakeDamage(int damage)
+	{
+		currentHealth -= damage;
+		print ("HP : " + currentHealth);
+		print (this);
+		if(currentHealth <= 0)
+		{
+			// ... the enemy is dead.
+			Dead ();
+		}
+	}
 
 	public void Dead()
 	{
+		isAlive = false;
+		anim.SetTrigger("Dead");
+		collider.isTrigger = true;
+		//rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
+		//rigidbody.enabled = false;
 	}
 }

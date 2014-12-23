@@ -2,12 +2,12 @@
 using System.Collections;
 
 public class HumanPlayer : Player {
-
-	// Use this for initialization
-	void Start () {
-		//body = transform.Find("Body");
-	}
 	
+	protected override void Start()
+	{
+		base.Start ();
+	}
+
 	//Update is called once per frame
 	void Update () {
 		/*if(isTurnOver)

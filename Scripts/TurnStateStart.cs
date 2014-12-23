@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
-public class TurnStateStart : MonoBehaviour {
+ 	public class TurnStateStart : MonoBehaviour {
 
 	TileMap tm;
 	ArrayList tileLocationIndex = new ArrayList();
@@ -23,12 +23,12 @@ public class TurnStateStart : MonoBehaviour {
 		tm = TileMap.instance;	
 		ps = GameObject.Find("Pointer").GetComponent<PointerScript>();
 	
-		classTypes = new BaseClass[]{GameObject.Find("ClassContainer").GetComponent<Apprentice>(), 
-									GameObject.Find("ClassContainer").GetComponent<Archer>(), 
-									GameObject.Find("ClassContainer").GetComponent<Brawler>(),
-									GameObject.Find("ClassContainer").GetComponent<Dragoon>(),
-									GameObject.Find("ClassContainer").GetComponent<Fighter>(),
-									GameObject.Find("ClassContainer").GetComponent<Thief>()};
+		classTypes = new BaseClass[]{GameObject.Find("ClassContainer").GetComponent<BaseClass_Apprentice>(), 
+									GameObject.Find("ClassContainer").GetComponent<BaseClass_Archer>(), 
+									GameObject.Find("ClassContainer").GetComponent<BaseClass_Brawler>(),
+									GameObject.Find("ClassContainer").GetComponent<BaseClass_Dragoon>(),
+									GameObject.Find("ClassContainer").GetComponent<BaseClass_Fighter>(),
+									GameObject.Find("ClassContainer").GetComponent<BaseClass_Thief>()};
 	}
 
 	void Start()

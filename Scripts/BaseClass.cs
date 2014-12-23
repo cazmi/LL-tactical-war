@@ -7,6 +7,7 @@ public class BaseClass : MonoBehaviour {
 	string className;
 	string classDescription;
 	string classType;
+	BaseWeapon classWeapon;
 
 	int baseHP;
 	float baseAttack;
@@ -60,6 +61,15 @@ public class BaseClass : MonoBehaviour {
 		}
 		set {
 			classType = value;
+		}
+	}
+
+	public BaseWeapon ClassWeapon {
+		get {
+			return classWeapon;
+		}
+		set {
+			classWeapon = value;
 		}
 	}
 
