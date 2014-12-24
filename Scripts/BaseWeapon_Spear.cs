@@ -13,12 +13,12 @@ public class BaseWeapon_Spear : BaseWeapon {
 	// Use this for initialization
 	new void Start () {
 		base.Start();
-		length = 2f;
+		length = 5f;
 		//damage = 5;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		origin = weapon.transform.position - weapon.transform.forward;
+		origin = weapon.transform.position;
 	}
 }

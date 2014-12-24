@@ -18,12 +18,6 @@ public class Player : MonoBehaviour {
 
 	protected int currentHealth;
 	public bool isAlive;
-	protected Animator anim;
-
-	protected virtual void Awake()
-	{
-		anim = GetComponent<Animator>();
-	}
 
 	protected virtual void Start()
 	{
@@ -37,6 +31,7 @@ public class Player : MonoBehaviour {
 	{
 		if (transform.position == tmi [tmi.Count-1].position) 
 		{	
+			print (tmi [tmi.Count-1].position);
 			if(tmi.Count > 1)
 			{
 				if(tmi[tmi.Count-1].west == tmi[tmi.Count-2])
@@ -69,6 +64,7 @@ public class Player : MonoBehaviour {
 
 		if (Vector3.Distance (transform.position, destination) > 0.1f) {
 			transform.position += (destination - transform.position).normalized * moveSpeed * Time.deltaTime;
+			print (transform);
 			/*Vector3 direction = destination - transform.position;	
 			direction.Normalize ();
 
@@ -83,7 +79,6 @@ public class Player : MonoBehaviour {
 	{
 		currentHealth -= damage;
 		print ("HP : " + currentHealth);
-		print (this);
 		if(currentHealth <= 0)
 		{
 			// ... the enemy is dead.
@@ -94,7 +89,6 @@ public class Player : MonoBehaviour {
 	public void Dead()
 	{
 		isAlive = false;
-		anim.SetTrigger("Dead");
 		collider.isTrigger = true;
 		//rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
 		//rigidbody.enabled = false;

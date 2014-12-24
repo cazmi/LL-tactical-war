@@ -54,6 +54,7 @@ using System.Collections;
 			player.transform.parent = TurnManager.instance.tacticScene.transform;
 			player.tilePosition = randPosition;
 			player.playerClass = classTypes[i];
+			player.playerWeapon = player.GetComponent<BaseWeapon_Dagger>();
 
 			player.playerClass.TerrainEffect(tm.terrainType);
 
@@ -74,6 +75,7 @@ using System.Collections;
 			enemy.transform.parent = TurnManager.instance.tacticScene.transform;
 			enemy.tilePosition = randPosition;
 			enemy.playerClass = classTypes[i];
+			enemy.playerWeapon = enemy.GetComponent<BaseWeapon_Staff>();
 
 			enemy.playerClass.TerrainEffect(tm.terrainType);
 

@@ -37,10 +37,10 @@ public class BaseWeapon : MonoBehaviour {
 
 		Debug.DrawLine(origin, origin + direction *  length); 
 
-		if(Physics.Raycast(origin, direction, out hitInfo, length))
+		if(Physics.Raycast(origin, direction, out hitInfo, length, killableMask))
 		{
 			Player hitPlayer = hitInfo.transform.GetComponent<Player>();
-			if(hitPlayer != hitter && hitPlayer.isAlive && inHitFrame && AddToHitActor(hitPlayer))
+			if(hitPlayer.gameObject.tag != hitter.gameObject.tag && hitPlayer.isAlive && inHitFrame && AddToHitActor(hitPlayer))
 			{
 				hitPlayer.TakeDamage(damage);
 			}
@@ -49,6 +49,7 @@ public class BaseWeapon : MonoBehaviour {
 	
 	public bool ToggleHitFrame()
 	{
+		ResetHitActorsList();
 		return inHitFrame = !inHitFrame;
 	}
 	

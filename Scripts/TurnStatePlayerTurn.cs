@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -243,7 +243,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		if(pf.GetPathList().Count != 0)
 		{
 			tMan.currentTurn.Move(pf.GetPathList());
-			pf.GetPathList();
 		}
 		if (tMan.currentTurn.transform.position == finalDestination) 
 		{	
@@ -421,7 +420,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			{
 				playerState = PlayerState.Move;
 			}
-
 			if(buttons[1] && tMan.currentTurn.attackEnabled)
 			{
 				playerState = PlayerState.Attack;

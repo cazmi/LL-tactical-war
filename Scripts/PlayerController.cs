@@ -39,10 +39,6 @@ public class PlayerController : MonoBehaviour {
 	{
 		bool attack = Input.GetMouseButtonDown(0);
 		anim.SetBool("Attacking", attack);
-		if(attack)
-		{
-			player.playerWeapon.ResetHitActorsList();
-		}
 		player.playerWeapon.TraceAttack(player);
 	}
 
