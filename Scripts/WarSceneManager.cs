@@ -13,20 +13,17 @@ public class WarSceneManager : MonoBehaviour {
 	Transform enemySpawner;
 	Transform enemyUnitsSpawner;
 
-	public HumanPlayer playerGeneral;
-	public List<HumanPlayer> playerUnits = new List<HumanPlayer>();
-	public BotEnemy enemyGeneral;
-	public List<BotEnemy> enemyUnits = new List<BotEnemy>();
+	public Player playerGeneral;
+	public Player playerUnit;
+	public List<Player> playerUnits = new List<Player>();
+	public Player enemyGeneral;
+	public Player enemyUnit;
+	public List<Player> enemyUnits = new List<Player>();
 
 	public int playerUnitsRow;
 	public int playerUnitsColumn;
 	public int enemyUnitsRow;
 	public int enemyUnitsColumn;
-
-	public Transform humanPrefab;
-	public Transform humanUnitsPrefab;
-	public Transform enemyPrefab;
-	public Transform enemyUnitsPrefab;
 
 	Vector3 firstRowPlayerUnits;
 	Vector3 firstRowEnemyUnits;
@@ -52,12 +49,74 @@ public class WarSceneManager : MonoBehaviour {
 		enemySpawner = transform.Find("EnemySpawner");
 		enemyUnitsSpawner = transform.Find("EnemyUnitsSpawner");
 	}
-
-	// Use this for initialization
-	void Start () {
-		InitializeWar();
+	
+	public void InitializeWar(Player player, Player enemy)
+	{
 		battleState = BattleState.Pre_Battle;
+
+		/*
+		 * Spawn Player's General
+		 */
+		playerGeneral = Instantiate(player, playerSpawner.position, Quaternion.Euler(new Vector3(0,90,0))) as Player;
+
+		CopyComponent(player.gameObject.GetComponent<Player>(), playerGeneral.gameObject);
+
+		/*print (player.playerClass.BaseAttack);
+		playerGeneral.transform.parent = warScene.transform;
+		playerGeneral.gameObject.AddComponent<PlayerController>();
+		playerUnits.Add(playerGeneral);*/
+
+		/*
+		 * Spawn Player's squads
+		 *
+		firstRowPlayerUnits = playerUnitsSpawner.position;
+		for(int i = 0; i < playerUnitsRow; i++)
+		{
+			for(int j = 0; j < playerUnitsColumn; j++)
+			{
+				playerUnit = Instantiate(player, firstRowPlayerUnits, Quaternion.Euler(new Vector3(0,90,0))) as Player;
+				playerUnit.transform.parent = warScene.transform;
+				playerUnit.gameObject.AddComponent<PlayerAIController>();
+				playerUnit.GetComponent<NavMeshAgent>().enabled = true;
+				playerUnits.Add(playerUnit);
+				
+				firstRowPlayerUnits.z += 5;
+			}
+			firstRowPlayerUnits.z = playerUnitsSpawner.position.z;
+			firstRowPlayerUnits.x -= 3;
+		}
+
+		/*
+		 * Spawn Enemy's General
+		 *
+		enemyGeneral = Instantiate(enemy, enemySpawner.position, Quaternion.Euler(new Vector3(0,270,0))) as Player;
+		enemyGeneral.transform.parent = warScene.transform;
+		enemyGeneral.gameObject.AddComponent<AIController>();
+		enemyGeneral.GetComponent<NavMeshAgent>().enabled = true;
+		enemyUnits.Add(enemyGeneral);
+		
+		/*
+		 * Spawn Enemy's squads
+		 *
+		firstRowEnemyUnits = enemyUnitsSpawner.position;
+		for(int i = 0; i < enemyUnitsRow; i++)
+		{
+			for(int j = 0; j < enemyUnitsColumn; j++)
+			{
+				enemyUnit = Instantiate(enemy, firstRowEnemyUnits, Quaternion.Euler(new Vector3(0,270,0))) as Player;
+				enemyUnit.transform.parent = warScene.transform;
+				enemyUnit.gameObject.AddComponent<AIController>();
+				enemyUnit.GetComponent<NavMeshAgent>().enabled = true;
+				enemyUnits.Add(enemyUnit);	
+				
+				firstRowEnemyUnits.z += 5;
+			}
+			firstRowEnemyUnits.z = enemyUnitsSpawner.position.z;
+			firstRowEnemyUnits.x += 3;
+		}*/
 	}
+
+
 
 	void Update()
 	{
@@ -76,69 +135,6 @@ public class WarSceneManager : MonoBehaviour {
 		}
 	}
 
-	void InitializeWar()
-	{
-		/*
-		 * Spawn Player's General
-		 */
-		playerGeneral = ((Transform)Instantiate(humanPrefab, playerSpawner.position, Quaternion.Euler(new Vector3(0,90,0)))).GetComponent<HumanPlayer>();
-		playerGeneral.transform.parent = warScene.transform;
-		playerGeneral.playerClass = GameObject.Find("ClassContainer").GetComponent<BaseClass_Fighter>();
-		playerGeneral.playerWeapon = playerGeneral.GetComponent<BaseWeapon_Dagger>();
-		playerGeneral.gameObject.AddComponent<PlayerController>();
-		playerUnits.Add(playerGeneral);
-
-		/*
-		 * Spawn Player's squads
-		 */
-		firstRowPlayerUnits = playerUnitsSpawner.position;
-		for(int i = 0; i < playerUnitsRow; i++)
-		{
-			for(int j = 0; j < playerUnitsColumn; j++)
-			{
-				playerUnits.Add(((Transform)Instantiate(humanUnitsPrefab, firstRowPlayerUnits, Quaternion.Euler(new Vector3(0,90,0)))).GetComponent<HumanPlayer>());
-				playerUnits[playerUnits.Count-1].transform.parent = warScene.transform;
-				playerUnits[playerUnits.Count-1].playerClass = GameObject.Find("ClassContainer").GetComponent<BaseClass_Fighter>();
-				playerUnits[playerUnits.Count-1].playerWeapon = playerUnits[playerUnits.Count-1].GetComponent<BaseWeapon_Spear>();
-				playerUnits[playerUnits.Count-1].gameObject.AddComponent<PlayerAIController>();
-
-				firstRowPlayerUnits.z += 5;
-			}
-			firstRowPlayerUnits.z = playerUnitsSpawner.position.z;
-			firstRowPlayerUnits.x -= 3;
-		}
-
-		/*
-		 * Spawn Enemy's General
-		 */
-		enemyGeneral = ((Transform)Instantiate(enemyPrefab, enemySpawner.position, Quaternion.Euler(new Vector3(0,270,0)))).GetComponent<BotEnemy>();
-		enemyGeneral.transform.parent = warScene.transform;
-		enemyGeneral.playerClass = GameObject.Find("ClassContainer").GetComponent<BaseClass_Apprentice>();
-		enemyGeneral.playerWeapon = enemyGeneral.GetComponent<BaseWeapon_Staff>();
-		enemyGeneral.gameObject.AddComponent<AIController>();
-		enemyUnits.Add(enemyGeneral);
-
-		/*
-		 * Spawn Enemy's squads
-		 */		
-		firstRowEnemyUnits = enemyUnitsSpawner.position;
-		for(int i = 0; i < enemyUnitsRow; i++)
-		{
-			for(int j = 0; j < enemyUnitsColumn; j++)
-			{
-				enemyUnits.Add(((Transform)Instantiate(enemyUnitsPrefab, firstRowEnemyUnits, Quaternion.Euler(new Vector3(0,270,0)))).GetComponent<BotEnemy>());
-				enemyUnits[enemyUnits.Count-1].transform.parent = warScene.transform;
-				enemyUnits[enemyUnits.Count-1].playerClass = GameObject.Find("ClassContainer").GetComponent<BaseClass_Apprentice>();
-				enemyUnits[enemyUnits.Count-1].playerWeapon = enemyUnits[enemyUnits.Count-1].GetComponent<BaseWeapon_Staff>();
-				enemyUnits[enemyUnits.Count-1].gameObject.AddComponent<AIController>();
-
-				firstRowEnemyUnits.z += 5;
-			}
-			firstRowEnemyUnits.z = enemyUnitsSpawner.position.z;
-			firstRowEnemyUnits.x += 3;
-		}
-	}
-
 	IEnumerator AnimateCamera()
 	{
 		yield return new WaitForSeconds(5);
@@ -147,9 +143,23 @@ public class WarSceneManager : MonoBehaviour {
 
 	void InBattleMonitor()
 	{
-		if(playerUnits.Count == 0 || enemyUnits.Count == 0)
+		/*if(!playerGeneral.isAlive || !enemyGeneral.isAlive ||
+			playerUnits.Count == 0 || enemyUnits.Count == 0)
 		{
 			battleState = BattleState.Post_Battle;
+		}*/
+	}
+
+	Component CopyComponent(Component original, GameObject destination)
+	{
+		System.Type type = original.GetType();
+		Component copy = destination.AddComponent(type);
+		// Copied fields can be restricted with BindingFlags
+		System.Reflection.FieldInfo[] fields = type.GetFields(); 
+		foreach (System.Reflection.FieldInfo field in fields)
+		{
+			field.SetValue(copy, field.GetValue(original));
 		}
+		return copy;
 	}
 }

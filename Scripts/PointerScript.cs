@@ -19,7 +19,7 @@ public class PointerScript : MonoBehaviour {
 	
 	void Start()
 	{
-		factor = 1f;
+		factor = 1.5f;
 	}
 	
 	public void AdjustPosition(Vector3 position)

@@ -124,7 +124,7 @@ public class TileMap : MonoBehaviour {
 		}
 
 		GenerateTileInfo();
-		DrawTransparentTexture ();
+		DrawTransparentTexture();
 	}
 
 	public void GenerateTileInfo()
@@ -169,6 +169,7 @@ public class TileMap : MonoBehaviour {
 		Color color = meshRenderer.material.color;
 		color.a = 1f;
 		meshRenderer.material.color = color;
+
 	}
 
 	public void HighlightTiles(int index, Color highlightColor)

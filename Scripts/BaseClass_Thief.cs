@@ -9,12 +9,11 @@ public class BaseClass_Thief : BaseClass {
 		ClassName = "Thief";
 		ClassDescription = "Melee character with high agility and low defense";
 		ClassType = "Bandit";
-		//ClassWeapon = gameObject.AddComponent<BaseWeapon_Dagger>();
 
-		BaseHP = 10;
-		BaseAttack = 10;
+		BaseHP = 100;
+		BaseAttack = 20;
 		BaseDefense = 10;
-
+		
 		TileAttack = 1;
 
 		/*plainMove = 2;
@@ -23,4 +22,11 @@ public class BaseClass_Thief : BaseClass {
 		mountainMove = 1;
 		fortMove = 1;*/
 	}
+
+	public override void BoostStats()
+	{
+		BaseHP += 150;
+		BaseAttack += 10;
+	}
+
 }

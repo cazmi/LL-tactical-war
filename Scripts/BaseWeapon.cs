@@ -6,8 +6,8 @@ public class BaseWeapon : MonoBehaviour {
 	protected GameObject weapon;	
 	protected int killableMask;
 
-	protected float length;
-	protected int damage;
+	protected float weaponLength;
+	protected int weaponDamage;
 
 	protected bool inHitFrame;
 	ArrayList hitActors = new ArrayList();
@@ -21,7 +21,7 @@ public class BaseWeapon : MonoBehaviour {
 
 	void Awake()
 	{
-		print ("*** BaseWeapon Class ***");
+		//print ("*** BaseWeapon Class ***");
 		killableMask = LayerMask.GetMask("Killable");
 		OnAwake();
 	}
@@ -31,18 +31,19 @@ public class BaseWeapon : MonoBehaviour {
 		inHitFrame = false;
 	}
 
+
 	public void TraceAttack(Player hitter)
 	{
-		direction = weapon.transform.forward;
+		direction = transform.forward;
 
-		Debug.DrawLine(origin, origin + direction *  length); 
+		Debug.DrawLine(origin, origin + direction *  weaponLength); 
 
-		if(Physics.Raycast(origin, direction, out hitInfo, length, killableMask))
+		if(Physics.Raycast(origin, direction, out hitInfo, weaponLength, killableMask))
 		{
 			Player hitPlayer = hitInfo.transform.GetComponent<Player>();
 			if(hitPlayer.gameObject.tag != hitter.gameObject.tag && hitPlayer.isAlive && inHitFrame && AddToHitActor(hitPlayer))
 			{
-				hitPlayer.TakeDamage(damage);
+				hitPlayer.TakeDamage(hitter.playerClass.BaseAttack);
 			}
 		}
 	}

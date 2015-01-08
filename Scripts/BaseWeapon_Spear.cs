@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BaseWeapon_Spear : BaseWeapon {
@@ -6,14 +6,14 @@ public class BaseWeapon_Spear : BaseWeapon {
 	protected override void OnAwake()
 	{
 		//base.Awake();
-		weapon = GameObject.Find("spear");
-		damage = GameObject.Find("WeaponDamage").GetComponent<WeaponDamageContainer>().spear;
+		//weapon = GameObject.Find("spear");
+		//weaponDamage = GameObject.Find("WeaponDamage").GetComponent<WeaponDamageContainer>().spear;
 	}
 
 	// Use this for initialization
 	new void Start () {
 		base.Start();
-		length = 5f;
+		weaponLength = 5f;
 		//damage = 5;
 	}
 	

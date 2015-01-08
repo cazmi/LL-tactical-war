@@ -14,9 +14,8 @@ public class Player : MonoBehaviour {
 	public bool waitEnabled;
 
 	public BaseClass playerClass;
-	public BaseWeapon playerWeapon;
 
-	protected int currentHealth;
+	public int currentHealth;
 	public bool isAlive;
 
 	protected virtual void Start()
@@ -29,9 +28,9 @@ public class Player : MonoBehaviour {
 
 	public void Move(List<TileMapInfo> tmi)
 	{
-		if (transform.position == tmi [tmi.Count-1].position) 
+		if (Vector3.Distance(transform.position, tmi [tmi.Count-1].position) < 0.1f) 
 		{	
-			print (tmi [tmi.Count-1].position);
+			//print ("reached next destination");
 			if(tmi.Count > 1)
 			{
 				if(tmi[tmi.Count-1].west == tmi[tmi.Count-2])
@@ -57,14 +56,12 @@ public class Player : MonoBehaviour {
 					transform.rotation = Quaternion.Euler(0,180,0);
 				}
 			}
-
 			tmi.Remove(tmi[tmi.Count-1]);
 			destination = tmi [tmi.Count-1].position;
 		}
 
 		if (Vector3.Distance (transform.position, destination) > 0.1f) {
 			transform.position += (destination - transform.position).normalized * moveSpeed * Time.deltaTime;
-			print (transform);
 			/*Vector3 direction = destination - transform.position;	
 			direction.Normalize ();
 
@@ -77,8 +74,8 @@ public class Player : MonoBehaviour {
 	
 	public void TakeDamage(int damage)
 	{
+		print ("I take " + damage + " damage");
 		currentHealth -= damage;
-		print ("HP : " + currentHealth);
 		if(currentHealth <= 0)
 		{
 			// ... the enemy is dead.

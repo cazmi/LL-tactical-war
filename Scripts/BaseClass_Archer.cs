@@ -10,8 +10,8 @@ public class BaseClass_Archer : BaseClass {
 		ClassDescription = "Ranged character with high agility and low defense";
 		ClassType = "Archer";
 
-		BaseHP = 10;
-		BaseAttack = 10;
+		BaseHP = 100;
+		BaseAttack = 20;
 		BaseDefense = 10;
 
 		TileAttack = 2;
@@ -22,4 +22,11 @@ public class BaseClass_Archer : BaseClass {
 		mountainMove = 3;
 		fortMove = 3;*/
 	}
+	
+	public override void BoostStats()
+	{
+		BaseHP += 150;
+		BaseAttack += 10;
+	}
+
 }

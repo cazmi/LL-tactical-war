@@ -10,8 +10,8 @@ public class BaseClass_Dragoon : BaseClass {
 		ClassDescription = "Melee character with high attack and high defense";
 		ClassType = "Cavalier";
 
-		BaseHP = 10;
-		BaseAttack = 10;
+		BaseHP = 100;
+		BaseAttack = 20;
 		BaseDefense = 10;
 
 		TileAttack = 1;
@@ -22,4 +22,11 @@ public class BaseClass_Dragoon : BaseClass {
 		mountainMove = 1;
 		fortMove = 3;*/
 	}
+	
+	public override void BoostStats()
+	{
+		BaseHP += 150;
+		BaseAttack += 10;
+	}
+
 }

@@ -13,12 +13,10 @@ public class TurnManager : MonoBehaviour {
 	TurnStatePlayerTurn turnStatePlayerTurn;
 	TurnStateEnemyBot turnStateEnemyBot;
 
-	public int totalPlayer = 1;
-	public int totalEnemy = 1;
-
-	public GameObject playerPrefab;
-	public GameObject enemyPrefab;
+	public GameObject[] playerPrefab;
+	public GameObject[] enemyPrefab;
 	public GameObject tacticScene;
+	public GameObject warScene;
 	
 	public Player currentTurn;
 
@@ -46,6 +44,7 @@ public class TurnManager : MonoBehaviour {
 		instance = this;
 
 		tacticScene = GameObject.Find("TacticScene");
+		warScene = GameObject.Find("WarScene");
 
 		turnStateStart = gameObject.AddComponent<TurnStateStart> ();
 		turnStatePlayerTurn = gameObject.AddComponent<TurnStatePlayerTurn> ();
@@ -57,6 +56,8 @@ public class TurnManager : MonoBehaviour {
 		turnState = TurnState.Setup;
 		tacticSceneloaded = true;
 		onGoingTurn = false;
+
+		warScene.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -64,7 +65,7 @@ public class TurnManager : MonoBehaviour {
 		switch (turnState) 
 		{
 		case TurnState.Setup:
-			turnStateStart.Initialize(totalPlayer, playerPrefab, totalEnemy, enemyPrefab);
+			turnStateStart.Initialize(playerPrefab, enemyPrefab);
 			break;
 		case TurnState.PlayerTurn:
 			if(!onGoingTurn) turnStatePlayerTurn.EnterPickState();

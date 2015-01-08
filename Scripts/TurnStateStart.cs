@@ -22,13 +22,6 @@ using System.Collections;
 	{
 		tm = TileMap.instance;	
 		ps = GameObject.Find("Pointer").GetComponent<PointerScript>();
-	
-		classTypes = new BaseClass[]{GameObject.Find("ClassContainer").GetComponent<BaseClass_Apprentice>(), 
-									GameObject.Find("ClassContainer").GetComponent<BaseClass_Archer>(), 
-									GameObject.Find("ClassContainer").GetComponent<BaseClass_Brawler>(),
-									GameObject.Find("ClassContainer").GetComponent<BaseClass_Dragoon>(),
-									GameObject.Find("ClassContainer").GetComponent<BaseClass_Fighter>(),
-									GameObject.Find("ClassContainer").GetComponent<BaseClass_Thief>()};
 	}
 
 	void Start()
@@ -42,19 +35,20 @@ using System.Collections;
 	}
 
 	// spawn players and enemies, set their positions
-	public void Initialize(int totalPlayer, GameObject playerPref, int totalEnemy, GameObject enemyPref)
+	public void Initialize(GameObject[] playerPref, GameObject[] enemyPref)
 	{
 		int j = 67;
 		// spawn players
-		for(int i=0; i<totalPlayer; i++)
+		for(int i=0; i<playerPref.Length; i++)
 		{
 			//int randPosition = (int)tileLocationIndex[Random.Range(0, tileLocationIndex.Count)];
 			int randPosition = j+i;
-			player = ((GameObject)Instantiate(playerPref, tm.tiles[randPosition].position, playerPref.transform.rotation)).GetComponent<HumanPlayer>();
+			player = ((GameObject)Instantiate(playerPref[i], tm.tiles[randPosition].position, playerPref[i].transform.rotation)).GetComponent<HumanPlayer>();
 			player.transform.parent = TurnManager.instance.tacticScene.transform;
 			player.tilePosition = randPosition;
-			player.playerClass = classTypes[i];
-			player.playerWeapon = player.GetComponent<BaseWeapon_Dagger>();
+			player.playerClass = player.GetComponent<BaseClass>();
+			player.playerClass.BoostStats();
+			print (player.playerClass.BaseAttack);
 
 			player.playerClass.TerrainEffect(tm.terrainType);
 
@@ -67,15 +61,14 @@ using System.Collections;
 
 		j = 105;
 		// spawn enemies
-		for(int i=0; i<totalEnemy; i++)
+		for(int i=0; i<enemyPref.Length; i++)
 		{
 			//int randPosition = (int)tileLocationIndex[Random.Range(0, tileLocationIndex.Count)];
 			int randPosition = j+(i*2);
-			enemy = ((GameObject)Instantiate(enemyPref, tm.tiles[randPosition].position, enemyPref.transform.rotation)).GetComponent<BotEnemy>();
+			enemy = ((GameObject)Instantiate(enemyPref[i], tm.tiles[randPosition].position, enemyPref[i].transform.rotation)).GetComponent<BotEnemy>();
 			enemy.transform.parent = TurnManager.instance.tacticScene.transform;
 			enemy.tilePosition = randPosition;
-			enemy.playerClass = classTypes[i];
-			enemy.playerWeapon = enemy.GetComponent<BaseWeapon_Staff>();
+			enemy.playerClass = enemy.GetComponent<BaseClass>();
 
 			enemy.playerClass.TerrainEffect(tm.terrainType);
 
@@ -85,7 +78,7 @@ using System.Collections;
 
 			TurnManager.instance.enemies.Add(enemy);
 		}
-		
+
 		// decide who goes first based on scenario (?)
 		ChooseWhoGoesFirst ();
 

@@ -97,7 +97,7 @@ public class AIController : MonoBehaviour {
 		anim.SetBool("Attacking", true);
 
 		nav.Stop();
-		botEnemy.playerWeapon.TraceAttack(botEnemy);
+		botEnemy.playerClass.classWeapon.TraceAttack(botEnemy);
 
 		if(!target.isAlive)
 		{
@@ -127,6 +127,11 @@ public class AIController : MonoBehaviour {
 		
 		rigidbody.MoveRotation(newRotation);
 	}
+
+	public void ToggleHitFrame()
+	{
+		botEnemy.playerClass.classWeapon.ToggleHitFrame();
+	}	
 
 	void Dead()
 	{

@@ -10,8 +10,8 @@ public class BaseClass_Apprentice : BaseClass {
 		ClassDescription = "Ranged character with powerful magic and low defense";
 		ClassType = "Mage";
 
-		BaseHP = 10;
-		BaseAttack = 10;
+		BaseHP = 100;
+		BaseAttack = 20;
 		BaseDefense = 10;
 				
 		TileAttack = 2;
@@ -22,4 +22,17 @@ public class BaseClass_Apprentice : BaseClass {
 		mountainMove = 3;
 		fortMove = 1;*/
 	}
+	
+	public override void BoostStats()
+	{
+		BaseHP += 150;
+		BaseAttack += 10;
+	}
+
+	void Awake()
+	{
+		classWeapon = gameObject.GetComponentInChildren<BaseWeapon_Staff>();
+		//classSkill = gameObject.AddComponent<BaseSkill_AuraThrust>();
+	}
+
 }

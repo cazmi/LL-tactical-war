@@ -96,7 +96,7 @@ public class PlayerAIController : MonoBehaviour {
 		anim.SetBool("Attacking", true);
 		
 		nav.Stop();
-		humanPlayer.playerWeapon.TraceAttack(humanPlayer);
+		humanPlayer.playerClass.classWeapon.TraceAttack(humanPlayer);
 		
 		if(!target.isAlive)
 		{
@@ -111,7 +111,12 @@ public class PlayerAIController : MonoBehaviour {
 			}
 		}
 	}
-	
+
+	public void ToggleHitFrame()
+	{
+		humanPlayer.playerClass.classWeapon.ToggleHitFrame();
+	}
+
 	void Rotating(Vector3 target)
 	{
 		Vector3 direction = (target - transform.position) / (target - transform.position).magnitude;

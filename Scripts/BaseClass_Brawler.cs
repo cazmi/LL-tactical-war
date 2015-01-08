@@ -10,8 +10,8 @@ public class BaseClass_Brawler : BaseClass {
 		ClassDescription = "Melee character with heavy weapons and high defense";
 		ClassType = "Beastman";
 
-		BaseHP = 10;
-		BaseAttack = 10;
+		BaseHP = 100;
+		BaseAttack = 20;
 		BaseDefense = 10;
 
 		TileAttack = 1;
@@ -22,4 +22,11 @@ public class BaseClass_Brawler : BaseClass {
 		mountainMove = 1;
 		fortMove = 3;*/
 	}
+	
+	public override void BoostStats()
+	{
+		BaseHP += 150;
+		BaseAttack += 10;
+	}
+
 }

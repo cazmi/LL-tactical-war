@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BaseClass : MonoBehaviour {
+abstract public class BaseClass : MonoBehaviour {
 
 	int classID;
 	string className;
 	string classDescription;
 	string classType;
-	BaseWeapon classWeapon;
+	public BaseWeapon classWeapon;
+	public BaseSkill classSkill;
 
 	int baseHP;
-	float baseAttack;
+	int baseAttack;
 	int baseDefense;
 
 	int tileMove;
@@ -22,11 +23,11 @@ public class BaseClass : MonoBehaviour {
 	public int mountainMove;
 	public int fortMove;
 
-	public float plainBonus;
+	/*public float plainBonus;
 	public float forestBonus;
 	public float desertBonus;
 	public float mountainBonus;
-	public float fortBonus;
+	public float fortBonus;*/
 
 	public int ClassID {
 		get {
@@ -64,15 +65,6 @@ public class BaseClass : MonoBehaviour {
 		}
 	}
 
-	public BaseWeapon ClassWeapon {
-		get {
-			return classWeapon;
-		}
-		set {
-			classWeapon = value;
-		}
-	}
-
 	public int BaseHP {
 		get {
 			return baseHP;
@@ -82,7 +74,7 @@ public class BaseClass : MonoBehaviour {
 		}
 	}
 
-	public float BaseAttack {
+	public int BaseAttack {
 		get {
 			return baseAttack;
 		}
@@ -118,31 +110,33 @@ public class BaseClass : MonoBehaviour {
 		}
 	}
 
+	abstract public void BoostStats();
+
 	public void TerrainEffect(TileMap.TerrainType terrain)
 	{
 		if(terrain == TileMap.TerrainType.Plain)
 		{
-			baseAttack += baseAttack * plainBonus;
+			//baseAttack += baseAttack * plainBonus;
 			tileMove = plainMove;
 		}
 		else if(terrain == TileMap.TerrainType.Forest)
 		{
-			baseAttack += baseAttack * forestBonus;
+			//baseAttack += baseAttack * forestBonus;
 			tileMove = forestMove;
 		}
 		else if(terrain == TileMap.TerrainType.Desert)
 		{
-			baseAttack += baseAttack * desertBonus;
+			//baseAttack += baseAttack * desertBonus;
 			tileMove = desertMove;
 		}
 		else if(terrain == TileMap.TerrainType.Mountain)
 		{
-			baseAttack += baseAttack * mountainBonus;
+			//baseAttack += baseAttack * mountainBonus;
 			tileMove = mountainMove;
 		}
 		else if(terrain == TileMap.TerrainType.Fort)
 		{
-			baseAttack += baseAttack * fortBonus;
+			//baseAttack += baseAttack * fortBonus;
 			tileMove = fortMove;
 		}
 	}

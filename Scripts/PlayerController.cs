@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;	
+using System.Collections;
+using System;
 
 public class PlayerController : MonoBehaviour {
 
 	Animator anim;
 	Vector3 targetMovement;
-	Vector3 targetDirection;
+	public Vector3 targetDirection;
 
 	HumanPlayer player;
 
@@ -14,6 +15,10 @@ public class PlayerController : MonoBehaviour {
 	
 	RaycastHit hitInfo;
 
+	float nextSkill;
+	float skillCooldown;
+
+	bool showUI;
 	
 	void Awake()
 	{		
@@ -25,6 +30,7 @@ public class PlayerController : MonoBehaviour {
 	void Start()
 	{
 		targetDirection = new Vector3(1f, 0f, 0f);
+		skillCooldown = player.playerClass.classSkill.SkillCooldown;
 	}
 
 	void FixedUpdate()
@@ -37,9 +43,30 @@ public class PlayerController : MonoBehaviour {
 
 	void Update()
 	{
+		// attack
 		bool attack = Input.GetMouseButtonDown(0);
 		anim.SetBool("Attacking", attack);
-		player.playerWeapon.TraceAttack(player);
+		player.playerClass.classWeapon.TraceAttack(player);
+
+		// guard
+
+
+		// skill
+		if(Input.GetMouseButtonDown(1) && Time.time >= nextSkill)
+		{
+			nextSkill = Time.time + skillCooldown;
+			player.playerClass.classSkill.Cast(player);
+		}
+
+		// tactic
+
+
+		// command UI
+		if(Input.GetKeyDown(KeyCode.Space))
+		{
+			Time.timeScale = Convert.ToSingle(showUI);
+			showUI = !showUI;
+		}
 	}
 
 	void Move(float horizontal, float vertical)
@@ -71,5 +98,25 @@ public class PlayerController : MonoBehaviour {
 		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
 
 		rigidbody.MoveRotation(newRotation);
+	}
+
+	public void ToggleHitFrame()
+	{
+		player.playerClass.classWeapon.ToggleHitFrame();
+	}
+
+	void OnGUI()
+	{
+		GUI.Label (new Rect (10, 0, 200, 20), "HP >> " + (Mathf.Clamp(player.currentHealth, 0, Mathf.Infinity)));
+		GUI.Label (new Rect (10, 20, 200, 20), "Skill Cooldown >> " + (Mathf.Clamp(nextSkill - Time.time, 0, Mathf.Infinity)));
+
+		if(showUI)
+		{
+			GUI.Button(new Rect(0, 40, 100, 20), "Formation");
+			GUI.Button(new Rect(0, 60, 100, 20), "Advance");
+			GUI.Button(new Rect(0, 80, 100, 20), "Cover Me");
+			GUI.Button(new Rect(0, 100, 100, 20), "Regroup");
+			GUI.Button(new Rect(0, 120, 100, 20), "Fall Back");
+		}
 	}
 }
