@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AIController : MonoBehaviour {
-
+public class GeneralAIController : MonoBehaviour {
+	
 	Animator anim;
 	NavMeshAgent nav;
 	Player target;
-	BotEnemy botEnemy;
-
+	Player botEnemy;
+	
 	Vector3 targetMovement;
 	Vector3 targetDirection;
 	float attackDistance;
-
+	
 	public float turnSmoothing = 20f;	// A smoothing value for turning the player.
-
+	
 	enum BotState
 	{
 		Idle,
@@ -22,28 +22,28 @@ public class AIController : MonoBehaviour {
 		Attacking,
 		Dead
 	}
-
+	
 	BotState botState;
-
+	
 	void Awake () {
 		anim = GetComponent<Animator>();
 		nav = GetComponent<NavMeshAgent>();		
-		botEnemy = GetComponent<BotEnemy>();
+		botEnemy = WarSceneManager.instance.enemyGeneral;
 	}
-
+	
 	void Start()
 	{
 		botState = BotState.Idle;
 		attackDistance = 4f;
 	}
-
+	
 	// Update is called once per frame
 	void Update () {
 		if(!botEnemy.isAlive)
 		{
 			botState = BotState.Dead;
 		}
-
+		
 		switch(botState)
 		{
 		case BotState.Idle:
@@ -61,27 +61,27 @@ public class AIController : MonoBehaviour {
 		}
 		
 	}
-
+	
 	void Idle()
 	{
 		anim.SetFloat("Speed", 0);
 		anim.SetBool("Attacking", false);
-
+		
 		if(WarSceneManager.instance.battleState == WarSceneManager.BattleState.In_Battle)
 		{
 			target = FindTarget();
 			botState = BotState.Targeting;
 		}
 	}
-
+	
 	void Targeting()
 	{
 		anim.SetFloat("Speed", nav.speed);
 		anim.SetBool("Attacking", false);
-
+		
 		nav.SetDestination(target.transform.position);
 		Rotating(target.transform.position);
-
+		
 		if(Vector3.Distance(transform.position, target.transform.position) <= attackDistance)
 		{
 			botState = BotState.Attacking;
@@ -90,15 +90,15 @@ public class AIController : MonoBehaviour {
 		rigidbody.MovePosition(transform.position + targetMovement);
 		print(targetMovement);*/
 	}
-
+	
 	void Attacking()
 	{
 		anim.SetFloat("Speed", 0);
 		anim.SetBool("Attacking", true);
-
+		
 		nav.Stop();
 		botEnemy.playerClass.classWeapon.TraceAttack(botEnemy);
-
+		
 		if(!target.isAlive)
 		{
 			botState = BotState.Idle;
@@ -111,7 +111,7 @@ public class AIController : MonoBehaviour {
 			}
 		}
 	}
-
+	
 	void Rotating(Vector3 target)
 	{
 		Vector3 direction = (target - transform.position) / (target - transform.position).magnitude;
@@ -126,12 +126,12 @@ public class AIController : MonoBehaviour {
 		
 		rigidbody.MoveRotation(newRotation);
 	}
-
+	
 	public void ToggleHitFrame()
 	{
 		botEnemy.playerClass.classWeapon.ToggleHitFrame();
 	}	
-
+	
 	void Dead()
 	{
 		nav.enabled = false;
@@ -141,7 +141,7 @@ public class AIController : MonoBehaviour {
 
 		WarSceneManager.instance.enemyTroops.Remove(botEnemy);
 	}
-
+	
 	Player FindTarget()
 	{
 		int random = Random.Range(0, WarSceneManager.instance.playerTroops.Count-1);

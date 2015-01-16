@@ -12,7 +12,8 @@ public class BaseClass_Archer : BaseClass {
 
 		BaseHP = 100;
 		BaseAttack = 20;
-		BaseDefense = 10;
+		BaseDefense = 0;
+		TotalUnits = 50;
 
 		TileAttack = 2;
 

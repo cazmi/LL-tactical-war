@@ -21,7 +21,6 @@ public class TurnManager : MonoBehaviour {
 	public Player currentTurn;
 
 	public bool onGoingTurn;
-	public bool tacticSceneloaded;
 
 	public enum TurnState
 	{
@@ -54,7 +53,6 @@ public class TurnManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		turnState = TurnState.Setup;
-		tacticSceneloaded = true;
 		onGoingTurn = false;
 
 		warScene.SetActive(false);
@@ -84,7 +82,7 @@ public class TurnManager : MonoBehaviour {
 			turnState = TurnState.PlayerTurn;
 	}
 
-	public void checkBattleResult()
+	public void checkTacticResult()
 	{
 		if(players.Count == 0 || enemies.Count == 0)
 			turnState = TurnState.EndGame;

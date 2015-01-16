@@ -13,6 +13,7 @@ abstract public class BaseClass : MonoBehaviour {
 	int baseHP;
 	int baseAttack;
 	int baseDefense;
+	float totalUnits;
 
 	int tileMove;
 	int tileAttack;
@@ -30,84 +31,53 @@ abstract public class BaseClass : MonoBehaviour {
 	public float fortBonus;*/
 
 	public int ClassID {
-		get {
-			return classID;
-		}
-		set {
-			classID = value;
-		}
+		get { return classID;}
+		set { classID = value; } 
 	}
 
 	public string ClassName {
-		get {
-			return className;
-		}
-		set {
-			className = value;
-		}
+		get { return className;}
+		set { className = value; } 
 	}
 
 	public string ClassDescription {
-		get {
-			return classDescription;
-		}
-		set {
-			classDescription = value;
-		}
+		get { return classDescription;}
+		set { classDescription = value; } 
 	}
 
 	public string ClassType {
-		get {
-			return classType;
-		}
-		set {
-			classType = value;
-		}
+		get { return classType;}
+		set { classType = value; }
 	}
 
 	public int BaseHP {
-		get {
-			return baseHP;
-		}
-		set {
-			baseHP = value;
-		}
+		get { return baseHP;}
+		set { baseHP = value; }
 	}
 
 	public int BaseAttack {
-		get {
-			return baseAttack;
-		}
-		set {
-			baseAttack = value;
-		}
+		get { return baseAttack;}
+		set { baseAttack = value; }
 	}
 
 	public int BaseDefense {
-		get {
-			return baseDefense;
-		}
-		set {
-			baseDefense = value;
-		}
+		get { return baseDefense;}
+		set { baseDefense = value; }
+	}
+
+	public float TotalUnits {
+		get { return totalUnits;}
+		set { totalUnits = value; }
 	}
 
 	public int TileMove {
-		get {
-			return tileMove;
-		}
-		set {
-			tileMove = value;
-		}
+		get { return tileMove;}
+		set { tileMove = value; }
 	}
 
 	public int TileAttack {
-		get {
-			return tileAttack;
-		}
-		set {
-			tileAttack = value;
-		}
+		get { return tileAttack;}
+		set { tileAttack = value; }
 	}
 
 	abstract public void BoostStats();

@@ -18,6 +18,6 @@ public class BaseSkill_AuraThrust : BaseSkill {
 		Vector3 direction = caster.GetComponent<PlayerController>().targetDirection;
 		auraThrust.rigidbody.velocity = new Vector3(25 * direction.x,0,0);
 		auraThrust.tag = caster.tag;
-		auraThrust.GetComponent<AuraThrust_Projectile>().CalculateDamage(caster);
+		auraThrust.GetComponent<AuraThrust_Projectile>().GetCaster(caster);
 	}
 }

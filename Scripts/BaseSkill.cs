@@ -11,20 +11,20 @@ abstract public class BaseSkill : MonoBehaviour {
 	float skillCooldown;
 
 	public int SkillID { 
-				get; 
-				set; 
+		get { return skillID;}
+		set { skillID = value; } 
 	}
 	public string SkillName { 
-				get; 
-				set; 
+		get { return skillName;}
+		set { skillName = value; } 
 	}
 	public string SkillDescription {
-				get;
-				set;
+		get { return skillDescription;}
+		set { skillDescription = value; } 
 	}
 	public float SkillCooldown {
-				get;
-				set;
+		get { return skillCooldown;}
+		set { skillCooldown = value; } 
 	}
 
 	abstract public void Cast(Player player);

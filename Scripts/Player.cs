@@ -16,14 +16,21 @@ public class Player : MonoBehaviour {
 	public BaseClass playerClass;
 
 	public int currentHealth;
+	public float currentUnits;
+	public int modifiedAttack;
+	public int modifiedDefense;
+
 	public bool isAlive;
 
 	protected virtual void Start()
 	{
 		isTurnOver = false;
+		isAlive = true;
 
 		currentHealth = playerClass.BaseHP;
-		isAlive = true;
+		currentUnits  = playerClass.TotalUnits;
+		modifiedAttack = playerClass.BaseAttack;
+		modifiedDefense = playerClass.BaseDefense;
 	}
 
 	public void Move(List<TileMapInfo> tmi)

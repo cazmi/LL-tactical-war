@@ -37,7 +37,7 @@ using System.Collections;
 	// spawn players and enemies, set their positions
 	public void Initialize(GameObject[] playerPref, GameObject[] enemyPref)
 	{
-		int j = 67;
+		int j = 143;
 		// spawn players
 		for(int i=0; i<playerPref.Length; i++)
 		{
@@ -48,7 +48,6 @@ using System.Collections;
 			player.tilePosition = randPosition;
 			player.playerClass = player.GetComponent<BaseClass>();
 			player.playerClass.BoostStats();
-			print (player.playerClass.BaseAttack);
 
 			player.playerClass.TerrainEffect(tm.terrainType);
 
@@ -59,7 +58,7 @@ using System.Collections;
 			TurnManager.instance.players.Add(player);
 		}
 
-		j = 105;
+		j = 210;
 		// spawn enemies
 		for(int i=0; i<enemyPref.Length; i++)
 		{
@@ -69,6 +68,7 @@ using System.Collections;
 			enemy.transform.parent = TurnManager.instance.tacticScene.transform;
 			enemy.tilePosition = randPosition;
 			enemy.playerClass = enemy.GetComponent<BaseClass>();
+			enemy.playerClass.BoostStats();
 
 			enemy.playerClass.TerrainEffect(tm.terrainType);
 

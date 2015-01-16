@@ -43,7 +43,7 @@ public class BaseWeapon : MonoBehaviour {
 			Player hitPlayer = hitInfo.transform.GetComponent<Player>();
 			if(hitPlayer.gameObject.tag != hitter.gameObject.tag && hitPlayer.isAlive && inHitFrame && AddToHitActor(hitPlayer))
 			{
-				hitPlayer.TakeDamage(hitter.playerClass.BaseAttack);
+				hitPlayer.TakeDamage(hitter.modifiedAttack - hitPlayer.modifiedDefense);
 			}
 		}
 	}
@@ -70,5 +70,4 @@ public class BaseWeapon : MonoBehaviour {
 	{
 		hitActors.Clear();
 	}
-
 }

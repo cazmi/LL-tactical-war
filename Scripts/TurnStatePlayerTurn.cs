@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class TurnStatePlayerTurn : MonoBehaviour {
 
@@ -10,6 +9,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	//MeshCollider col;
 	TileMap tMap;
 	TurnManager tMan;
+	WarSceneManager wMan;
 	PathFinder pf;
 	BotEnemy pickedEnemy;
 	PointerScript pointerScript;
@@ -29,9 +29,9 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		Pick,
 		Menu,
 			Move,
-			Attack, 
+			Attack,
+			InBattle,
 			Wait,
-			View,
 		Animation,
 		End
 	}	
@@ -45,6 +45,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	{
 		tMap = TileMap.instance;
 		tMan = TurnManager.instance;
+		wMan = WarSceneManager.instance;
 		pf = gameObject.AddComponent<PathFinder> ();
 		//col = GameObject.Find ("TileMap").GetComponent<MeshCollider> ();
 		pointer = GameObject.Find ("Pointer").GetComponent<Transform>();
@@ -84,6 +85,9 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		case PlayerState.Attack:
 			pointerScript.gameObject.SetActive(true);
 			Attack();
+			break;
+		case PlayerState.InBattle:
+			WaitForBattleToFinish();
 			break;
 		case PlayerState.Wait:
 			Wait();
@@ -200,26 +204,8 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileMove);
 
-		/*if (Input.GetMouseButtonDown (0)) 
-		{
-			if (col.collider.Raycast(rayMouse, out hitInfo, Mathf.Infinity))
-			{		
-				int destinationTileIndex = tMap.WorldToTilePoint(hitInfo.point);
-				finalDestination = tMap.tiles[destinationTileIndex].position;
-
-				if(tMap.tiles[destinationTileIndex].inRange && tMap.tiles[destinationTileIndex].reachable)
-				{
-					pf.FindPath(tMap.tiles[tMan.currentTurn.tilePosition], tMap.tiles[destinationTileIndex]);
-					playerState = PlayerState.Animation;
-				}
-			}
-		}*/
-
-		
 		previousPosition = tMan.currentTurn.transform.position;
 		previousRotation = tMan.currentTurn.transform.rotation;
-
-		print (previousPosition);
 		
 		if(Input.GetKeyDown(KeyCode.Z))
 		{
@@ -289,26 +275,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileAttack);
 
-		/*if(Input.GetMouseButtonDown(0))
-		{
-			if (Physics.Raycast(rayMouse, out hitInfo, Mathf.Infinity)) 
-			{
-				if(hitInfo.collider.gameObject.tag == "Enemy")
-				{
-					BotEnemy chosenEnemy = hitInfo.collider.gameObject.GetComponent<BotEnemy>();
-					int indexList = tMan.enemies.IndexOf(chosenEnemy);
-					pickedEnemy = tMan.enemies[indexList];
-					
-					if(tMap.inRangeTiles.Contains(tMap.tiles[pickedEnemy.tilePosition]))
-					{
-						tMan.tacticScene.SetActive(false);
-						Application.LoadLevelAdditive(1);
-						PostAttackCondition();
-					}
-				}
-			}
-		}*/
-
 		if(Input.GetKeyDown(KeyCode.Z))
 		{
 			if(Physics.Raycast(pointer.transform.position, -Vector3.up, out hitInfo, Mathf.Infinity))
@@ -323,24 +289,51 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 					{
 						tMan.tacticScene.SetActive(false);
 						TurnManager.instance.warScene.SetActive(true);
-						WarSceneManager.instance.InitializeWar(tMan.currentTurn, pickedEnemy);
-						PostAttackCondition();
+						WarSceneManager.instance.InitializeWar(tMan.currentTurn.gameObject, pickedEnemy.gameObject);
+
+						playerState = PlayerState.InBattle;
 					}
 				} 
 			}
 		}
 	}
 
+	void WaitForBattleToFinish()
+	{
+		print ("waiting...");
+		if(tMan.tacticScene.activeInHierarchy)
+		{
+			PostAttackCondition();
+		}
+	}
+
 	void PostAttackCondition()
 	{
 		tMan.currentTurn.attackEnabled = false;
-		Destroy(pickedEnemy.gameObject);
-		tMan.enemies.Remove(pickedEnemy);
-		tMap.tiles[pickedEnemy.tilePosition].reachable = true;
 		
 		ResetInRangeTiles();
-	
-		tMan.checkBattleResult();
+
+		// update health and units
+		tMan.currentTurn.currentHealth = wMan.playerGeneral.currentHealth;
+		tMan.currentTurn.currentUnits = wMan.playerTroops.Count - 1;
+
+		pickedEnemy.currentHealth = wMan.enemyGeneral.currentHealth;
+		pickedEnemy.currentUnits = wMan.enemyTroops.Count - 1;
+
+		if(tMan.currentTurn.currentHealth <= 0)
+		{
+			Destroy(tMan.currentTurn.gameObject);
+			tMan.players.Remove((HumanPlayer)tMan.currentTurn);
+			tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;
+		}
+		else
+		{
+			Destroy(pickedEnemy.gameObject);
+			tMan.enemies.Remove(pickedEnemy);
+			tMap.tiles[pickedEnemy.tilePosition].reachable = true;
+		}
+
+		tMan.checkTacticResult();
 
 		if(tMan.turnState == TurnManager.TurnState.EndGame)
 			playerState = PlayerState.None;
@@ -365,7 +358,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		{
 			playerState = PlayerState.Pick;
 		}
-
 	}
 
 	void EndTurn()

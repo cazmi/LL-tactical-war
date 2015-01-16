@@ -3,11 +3,11 @@ using System.Collections;
 
 public class AuraThrust_Projectile : MonoBehaviour {
 
-	int damage;
+	Player caster;
 
-	public void CalculateDamage(Player caster)
+	public void GetCaster(Player pCaster)
 	{
-		damage = caster.playerClass.BaseAttack + (caster.playerClass.BaseAttack * 1);
+		caster = pCaster;
 	}
 
 	void OnTriggerEnter(Collider col)
@@ -15,6 +15,7 @@ public class AuraThrust_Projectile : MonoBehaviour {
 		if(col.tag != transform.tag)
 		{
 			Player hitPlayer = col.GetComponent<Player>();
+			int damage = (caster.modifiedAttack + (caster.modifiedAttack * 1)) - hitPlayer.modifiedDefense;
 			hitPlayer.TakeDamage(damage);
 		}
 	}

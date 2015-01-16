@@ -12,8 +12,9 @@ public class BaseClass_Thief : BaseClass {
 
 		BaseHP = 100;
 		BaseAttack = 20;
-		BaseDefense = 10;
-		
+		BaseDefense = 0;
+		TotalUnits = 50;
+
 		TileAttack = 1;
 
 		/*plainMove = 2;

@@ -6,8 +6,8 @@ public class PlayerAIController : MonoBehaviour {
 	NavMeshAgent nav;
 	Player target;
 	HumanPlayer humanPlayer;
-	
-	bool targetFound;
+
+	bool hasRemoved;
 	
 	Vector3 targetMovement;
 	Vector3 targetDirection;
@@ -36,6 +36,7 @@ public class PlayerAIController : MonoBehaviour {
 	{
 		botState = BotState.Idle;
 		attackDistance = 2f;
+		hasRemoved = false;
 	}
 	
 	// Update is called once per frame
@@ -100,7 +101,6 @@ public class PlayerAIController : MonoBehaviour {
 		
 		if(!target.isAlive)
 		{
-			WarSceneManager.instance.enemyUnits.Remove((BotEnemy)target);
 			botState = BotState.Idle;
 		}
 		else
@@ -138,12 +138,19 @@ public class PlayerAIController : MonoBehaviour {
 		anim.SetFloat("Speed", 0);
 		anim.SetBool("Attacking", false);
 		anim.SetTrigger("Dead");
+
+		if(!hasRemoved)
+		{
+			int index = WarSceneManager.instance.playerTroops.IndexOf(humanPlayer);
+			WarSceneManager.instance.playerTroops.Remove(WarSceneManager.instance.playerTroops[index]);
+			hasRemoved = true;
+		}
 	}
-	
+
 	Player FindTarget()
 	{
-		int random = Random.Range(0, WarSceneManager.instance.enemyUnits.Count-1);
-		Player target = WarSceneManager.instance.enemyUnits[random];
+		int random = Random.Range(0, WarSceneManager.instance.enemyTroops.Count-1);
+		Player target = WarSceneManager.instance.enemyTroops[random];
 		
 		return target;
 	}

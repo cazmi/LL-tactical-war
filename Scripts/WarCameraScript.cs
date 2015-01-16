@@ -13,8 +13,6 @@ public class WarCameraScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {		
-		transform.position = new Vector3(wsc.playerGeneral.transform.position.x,
-		                                 wsc.playerGeneral.transform.position.y, 
-		                                 wsc.playerGeneral.transform.position.z) + camOffset;
+		transform.position = wsc.playerGeneral.transform.position + camOffset;
 	}
 }
