@@ -27,5 +27,5 @@ abstract public class BaseSkill : MonoBehaviour {
 		set { skillCooldown = value; } 
 	}
 
-	abstract public void Cast(Player player);
+	abstract public void Cast(Player player, Vector3 direction);
 }

@@ -15,16 +15,17 @@ public class PlayerAIController : MonoBehaviour {
 	
 	public float turnSmoothing = 20f;	// A smoothing value for turning the player.
 	
-	enum BotState
+	public enum BotState
 	{
 		Idle,
 		//Advancing,
 		Targeting,
+		Chasing,
 		Attacking,
+		Covering,
 		Dead
 	}
-	
-	BotState botState;
+	public BotState botState;
 	
 	void Awake () {
 		anim = GetComponent<Animator>();
@@ -54,6 +55,9 @@ public class PlayerAIController : MonoBehaviour {
 		case BotState.Targeting:
 			Targeting();
 			break;
+		case BotState.Chasing:
+			Chasing();
+			break;
 		case BotState.Attacking:
 			Attacking();
 			break;
@@ -68,17 +72,29 @@ public class PlayerAIController : MonoBehaviour {
 		anim.SetFloat("Speed", 0);
 		anim.SetBool("Attacking", false);
 
+		/*
 		if(WarSceneManager.instance.battleState == WarSceneManager.BattleState.In_Battle)
 		{
 			target = FindTarget();
 			botState = BotState.Targeting;
 		}
+		*/
 	}
 	
 	void Targeting()
 	{
+		target = FindTarget();
+
+		if(target != null)
+		{
+			botState = BotState.Chasing;
+		}
+	}
+
+	void Chasing()
+	{
 		anim.SetFloat("Speed", nav.speed);
-		
+
 		nav.SetDestination(target.transform.position);
 		Rotating(target.transform.position);
 		
@@ -86,9 +102,6 @@ public class PlayerAIController : MonoBehaviour {
 		{
 			botState = BotState.Attacking;
 		}
-		/*targetMovement = transform.forward * 12 * Time.deltaTime;
-		rigidbody.MovePosition(transform.position + targetMovement);
-		print(targetMovement);*/
 	}
 	
 	void Attacking()
@@ -101,15 +114,20 @@ public class PlayerAIController : MonoBehaviour {
 		
 		if(!target.isAlive)
 		{
-			botState = BotState.Idle;
+			botState = BotState.Targeting;
 		}
 		else
 		{
 			if(Vector3.Distance(transform.position, target.transform.position) > attackDistance)
 			{
-				botState = BotState.Targeting;
+				botState = BotState.Chasing;
 			}
 		}
+	}
+
+	void Covering()
+	{
+
 	}
 
 	public void ToggleHitFrame()
@@ -126,9 +144,7 @@ public class PlayerAIController : MonoBehaviour {
 			targetDirection = new Vector3(1f, 0f, 0f);
 		
 		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
-		
 		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
-		
 		rigidbody.MoveRotation(newRotation);
 	}
 	

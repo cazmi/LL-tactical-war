@@ -22,7 +22,6 @@ public class AIController : MonoBehaviour {
 		Attacking,
 		Dead
 	}
-
 	BotState botState;
 
 	void Awake () {
@@ -114,16 +113,14 @@ public class AIController : MonoBehaviour {
 
 	void Rotating(Vector3 target)
 	{
-		Vector3 direction = (target - transform.position) / (target - transform.position).magnitude;
+		Vector3 direction = (target - transform.position) / (target - transform.position).magnitude;	// magnitude returns the distance as float
 		if(direction.x < 0)
 			targetDirection = new Vector3(-1f, 0f, 0f);
 		if(direction.x > 0)
 			targetDirection = new Vector3(1f, 0f, 0f);
 		
 		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
-		
-		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
-		
+		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);		
 		rigidbody.MoveRotation(newRotation);
 	}
 

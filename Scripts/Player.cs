@@ -16,11 +16,21 @@ public class Player : MonoBehaviour {
 	public BaseClass playerClass;
 
 	public int currentHealth;
-	public float currentUnits;
+	public int currentUnits;
 	public int modifiedAttack;
 	public int modifiedDefense;
 
 	public bool isAlive;
+	
+	public enum Direction
+	{
+		North,
+		East,
+		South,
+		West
+	}
+	public Direction playerDirection;
+
 
 	protected virtual void Start()
 	{
@@ -35,7 +45,7 @@ public class Player : MonoBehaviour {
 
 	public void Move(List<TileMapInfo> tmi)
 	{
-		if (Vector3.Distance(transform.position, tmi [tmi.Count-1].position) < 0.1f) 
+		if (Vector3.Distance(transform.position, tmi [tmi.Count-1].position) <= 0.1f)
 		{	
 			//print ("reached next destination");
 			if(tmi.Count > 1)
@@ -43,24 +53,22 @@ public class Player : MonoBehaviour {
 				if(tmi[tmi.Count-1].west == tmi[tmi.Count-2])
 				{
 					// rotate to left
-					transform.rotation = Quaternion.Euler(0,270,0);
+					Rotate("west");
 				}
 				else if(tmi[tmi.Count-1].north == tmi[tmi.Count-2])
 				{
 					// rotate to up
-					transform.rotation = Quaternion.Euler(0,0,0);
-					
+					Rotate("north");
 				}
 				else if(tmi[tmi.Count-1].east == tmi[tmi.Count-2])
 				{
 					// rotate to right
-					transform.rotation = Quaternion.Euler(0,90,0);
-					
+					Rotate("east");
 				}
 				else if(tmi[tmi.Count-1].south == tmi[tmi.Count-2])
 				{
 					// rotate to down
-					transform.rotation = Quaternion.Euler(0,180,0);
+					Rotate("south");
 				}
 			}
 			tmi.Remove(tmi[tmi.Count-1]);
@@ -78,7 +86,31 @@ public class Player : MonoBehaviour {
 			}
 		}
 	}
-	
+
+	public void Rotate(string dir)
+	{
+		if(dir == "north")
+		{
+			transform.rotation = Quaternion.Euler(0,0,0);
+			playerDirection = Direction.North;
+		}
+		else if(dir == "east")
+		{
+			transform.rotation = Quaternion.Euler(0,90,0);
+			playerDirection = Direction.East;
+		}
+		else if(dir == "south")
+		{
+			transform.rotation = Quaternion.Euler(0,180,0);
+			playerDirection = Direction.South;
+		}
+		else if(dir == "west")
+		{
+			transform.rotation = Quaternion.Euler(0,270,0);
+			playerDirection = Direction.West;
+		}
+	}
+
 	public void TakeDamage(int damage)
 	{
 		print ("I take " + damage + " damage");

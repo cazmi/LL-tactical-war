@@ -17,9 +17,8 @@ public class TurnManager : MonoBehaviour {
 	public GameObject[] enemyPrefab;
 	public GameObject tacticScene;
 	public GameObject warScene;
-	
-	public Player currentTurn;
 
+	public Player currentTurn;
 	public bool onGoingTurn;
 
 	public enum TurnState

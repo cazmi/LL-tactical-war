@@ -13,7 +13,7 @@ abstract public class BaseClass : MonoBehaviour {
 	int baseHP;
 	int baseAttack;
 	int baseDefense;
-	float totalUnits;
+	int totalUnits;
 
 	int tileMove;
 	int tileAttack;
@@ -65,7 +65,7 @@ abstract public class BaseClass : MonoBehaviour {
 		set { baseDefense = value; }
 	}
 
-	public float TotalUnits {
+	public int TotalUnits {
 		get { return totalUnits;}
 		set { totalUnits = value; }
 	}

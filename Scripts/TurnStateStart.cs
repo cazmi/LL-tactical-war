@@ -37,7 +37,7 @@ using System.Collections;
 	// spawn players and enemies, set their positions
 	public void Initialize(GameObject[] playerPref, GameObject[] enemyPref)
 	{
-		int j = 143;
+		int j = 208;
 		// spawn players
 		for(int i=0; i<playerPref.Length; i++)
 		{
@@ -46,6 +46,7 @@ using System.Collections;
 			player = ((GameObject)Instantiate(playerPref[i], tm.tiles[randPosition].position, playerPref[i].transform.rotation)).GetComponent<HumanPlayer>();
 			player.transform.parent = TurnManager.instance.tacticScene.transform;
 			player.tilePosition = randPosition;
+			player.Rotate("north");
 			player.playerClass = player.GetComponent<BaseClass>();
 			player.playerClass.BoostStats();
 
@@ -67,6 +68,7 @@ using System.Collections;
 			enemy = ((GameObject)Instantiate(enemyPref[i], tm.tiles[randPosition].position, enemyPref[i].transform.rotation)).GetComponent<BotEnemy>();
 			enemy.transform.parent = TurnManager.instance.tacticScene.transform;
 			enemy.tilePosition = randPosition;
+			enemy.Rotate("south");
 			enemy.playerClass = enemy.GetComponent<BaseClass>();
 			enemy.playerClass.BoostStats();
 

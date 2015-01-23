@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour {
 
 	Animator anim;
 	Vector3 targetMovement;
-	public Vector3 targetDirection;
+	Vector3 targetDirection;
 
 	Player player;
 
@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour {
 			if(Input.GetMouseButtonDown(1) && Time.time >= nextSkill)
 			{
 				nextSkill = Time.time + skillCooldown;
-				player.playerClass.classSkill.Cast(player);
+				player.playerClass.classSkill.Cast(player, targetDirection);
 			}
 
 			// command UI
@@ -103,9 +103,7 @@ public class PlayerController : MonoBehaviour {
 			targetDirection = new Vector3(1f, 0f, 0f);
 
 		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
-
 		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
-
 		rigidbody.MoveRotation(newRotation);
 	}
 
@@ -125,17 +123,29 @@ public class PlayerController : MonoBehaviour {
 
 	void OnGUI()
 	{
-		GUI.Label (new Rect (10, 0, 100, 20), "HP >> " + (Mathf.Clamp(player.currentHealth, 0, Mathf.Infinity)));
-		GUI.Label (new Rect (100, 0, 100, 20), "Atk >> " + player.modifiedAttack);
-		GUI.Label (new Rect (200, 0, 200, 20), "Def >> " + player.modifiedDefense);
-		GUI.Label (new Rect (10, 20, 200, 20), "Units Remaining >> " + (WarSceneManager.instance.playerTroops.Count - 1).ToString());
-		GUI.Label (new Rect (10, 40, 200, 20), "Skill Cooldown >> " + (Mathf.Clamp(nextSkill - Time.time, 0, Mathf.Infinity)));
-
-		if(showUI)
+		if(WarSceneManager.instance.battleState != WarSceneManager.BattleState.Preview)
 		{
-			GUI.Button(new Rect(10, 80, 100, 20), "Advance");
-			GUI.Button(new Rect(10, 100, 100, 20), "Cover Me");
-			GUI.Button(new Rect(10, 120, 100, 20), "Fall Back");
+			GUI.Label (new Rect (10, 0, 100, 20), "HP >> " + (Mathf.Clamp(player.currentHealth, 0, Mathf.Infinity)));
+			GUI.Label (new Rect (100, 0, 100, 20), "Atk >> " + player.modifiedAttack);
+			GUI.Label (new Rect (200, 0, 200, 20), "Def >> " + player.modifiedDefense);
+			GUI.Label (new Rect (10, 20, 200, 20), "Units Remaining >> " + (WarSceneManager.instance.playerTroops.Count - 1).ToString());
+			GUI.Label (new Rect (10, 40, 200, 20), "Skill Cooldown >> " + (Mathf.Clamp(nextSkill - Time.time, 0, Mathf.Infinity)));
+
+			if(showUI)
+			{
+				if(GUI.Button(new Rect(10, 80, 100, 20), "Advance"))
+				{
+
+				}
+				if(GUI.Button(new Rect(10, 100, 100, 20), "Cover Me"))
+				{
+
+				}
+				if(GUI.Button(new Rect(10, 120, 100, 20), "Fall Back"))
+				{
+
+				}
+			}
 		}
 	}
 }

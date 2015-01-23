@@ -90,6 +90,8 @@ public class TurnStateEnemyBot : MonoBehaviour {
 			tMan.enemies[i].moveEnabled = true;
 			tMan.enemies[i].waitEnabled = true;
 		}
+
+		reset = true;
 	}
 
 	void BotPick()
@@ -225,7 +227,8 @@ public class TurnStateEnemyBot : MonoBehaviour {
 			tMan.enemies.Remove((BotEnemy)tMan.currentTurn);
 			tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;
 		}
-		else
+
+		if(pickedPlayer.currentHealth <= 0)
 		{
 			Destroy(pickedPlayer.gameObject);
 			tMan.players.Remove(pickedPlayer);

@@ -6,19 +6,22 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	Vector3 finalDestination;
 	Vector3 previousPosition;
 	Quaternion previousRotation;
-	//MeshCollider col;
+
 	TileMap tMap;
 	TurnManager tMan;
 	WarSceneManager wMan;
 	PathFinder pf;
+
 	BotEnemy pickedEnemy;
-	PointerScript pointerScript;
 	Vector3 playerPositionOnScreen;
 
-	Transform pointer;
-
 	//Ray rayMouse;
+	Transform pointer;	
+	PointerScript pointerScript;
 	RaycastHit hitInfo;
+	
+	Player highlightPlayer;
+	bool showPlayerInfo;
 	
 	int totalTurn;
 	bool reset;
@@ -32,6 +35,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			Attack,
 			InBattle,
 			Wait,
+			Facing,
 		Animation,
 		End
 	}	
@@ -48,6 +52,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		wMan = WarSceneManager.instance;
 		pf = gameObject.AddComponent<PathFinder> ();
 		//col = GameObject.Find ("TileMap").GetComponent<MeshCollider> ();
+		
 		pointer = GameObject.Find ("Pointer").GetComponent<Transform>();
 		pointerScript = GameObject.Find ("Pointer").GetComponent<PointerScript> ();
 	}
@@ -92,6 +97,9 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		case PlayerState.Wait:
 			Wait();
 			break;
+		case PlayerState.Facing:
+			ChooseDirection();
+			break;
 		case PlayerState.Animation:
 			MovingAnimation();
 			break;
@@ -103,8 +111,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 	void ResetPlayerInfo()
 	{
-		reset = true;
-
 		for(int i=0; i < tMan.players.Count; i++)
 		{
 			tMan.players[i].isTurnOver = false;
@@ -112,6 +118,8 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			tMan.players[i].moveEnabled = true;
 			tMan.players[i].waitEnabled = true;
 		}
+
+		reset = true;
 	}
 
 	void PickPlayer()
@@ -131,6 +139,18 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 				}
 			}
 		}*/
+		if(Physics.Raycast(pointer.transform.position, -Vector3.up, out hitInfo, Mathf.Infinity))
+		{
+			if(hitInfo.collider.tag == "Player" || hitInfo.collider.tag == "Enemy")
+			{
+				showPlayerInfo = true;
+				highlightPlayer = hitInfo.collider.gameObject.GetComponent<Player>();
+			}
+			else
+			{
+				showPlayerInfo = false;
+			}
+		}
 		
 		if(Input.GetKeyDown(KeyCode.Z))
 		{
@@ -151,23 +171,29 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 	void InMenu()
 	{
+		pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
+
 		if (Input.GetKeyDown(KeyCode.X))
 		{
-			if(!tMan.currentTurn.moveEnabled)
+			// if player has not committed any action, player can go back to pick state
+			if(tMan.currentTurn.moveEnabled && tMan.currentTurn.attackEnabled)
+			{
+				playerState = PlayerState.Pick;
+			}
+			// if player has moved, player can go back to previous potition
+			else if(!tMan.currentTurn.moveEnabled)
 			{
 				CancelMove();
 			}
-			else
-				playerState = PlayerState.Pick;
 		}
 
 		tMap.DrawTransparentTexture ();
 
-		if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+		if(Input.GetKeyDown(KeyCode.UpArrow))
 		{
 			selectedMenu = NavigateMenu(buttonNames, selectedMenu, "up");
 		}
-		if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+		if(Input.GetKeyDown(KeyCode.DownArrow))
 		{
 			selectedMenu = NavigateMenu(buttonNames, selectedMenu, "down");
 		}
@@ -198,7 +224,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.X))
 		{
-			pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
 			playerState = PlayerState.Menu;
 		}
 
@@ -239,14 +264,14 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	// restore state before moving
 	void CancelMove()
 	{
-		tMan.currentTurn.transform.position = previousPosition;
+		tMan.currentTurn.transform.position = previousPosition;		// <<<<<<< inaccurate position
 		tMan.currentTurn.transform.rotation = previousRotation;
 
 		tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;	// enable previous occupied tile 								
 		tMan.currentTurn.tilePosition = tMap.WorldToTilePoint(previousPosition);
 		tMap.tiles[tMan.currentTurn.tilePosition].reachable = false;	// disable current occupied tile
 
-		pointerScript.AdjustPosition(previousPosition);
+		//pointerScript.AdjustPosition(previousPosition);
 		tMan.currentTurn.moveEnabled = true;
 
 		playerState = PlayerState.Move;
@@ -257,9 +282,9 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	{
 		tMan.currentTurn.moveEnabled = false;
 		
-		tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;	// enable previous occupied tile 								
+		tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;			// enable previous occupied tile 								
 		tMan.currentTurn.tilePosition = tMap.WorldToTilePoint (tMan.currentTurn.transform.position);
-		tMap.tiles[tMan.currentTurn.tilePosition].reachable = false;	// disable current occupied tile
+		tMap.tiles[tMan.currentTurn.tilePosition].reachable = false;		// disable current occupied tile
 
 		ResetInRangeTiles();
 		playerState = PlayerState.Menu;
@@ -269,11 +294,32 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.X))
 		{
-			pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
 			playerState = PlayerState.Menu;
 		}
 
 		tMap.DetermineAvailableTiles(tMan.currentTurn.tilePosition, tMan.currentTurn.playerClass.TileAttack);
+
+		// adjust player to look at the cursor direction
+		Vector3 lookAt = pointer.transform.position;
+		lookAt.y = tMan.currentTurn.transform.position.y;
+		tMan.currentTurn.transform.LookAt(lookAt);
+		print (tMan.currentTurn.transform.eulerAngles.y);
+		if(Mathf.Round(tMan.currentTurn.transform.eulerAngles.y) == 0)
+		{
+			tMan.currentTurn.playerDirection = Player.Direction.North;
+		}
+		else if(Mathf.Round(tMan.currentTurn.transform.eulerAngles.y) == 90)
+		{
+			tMan.currentTurn.playerDirection = Player.Direction.East;
+		}
+		else if(Mathf.Round(tMan.currentTurn.transform.eulerAngles.y) == 180)
+		{
+			tMan.currentTurn.playerDirection = Player.Direction.South;
+		}
+		else if(Mathf.Round(tMan.currentTurn.transform.eulerAngles.y) == 270)
+		{
+			tMan.currentTurn.playerDirection = Player.Direction.West;
+		}
 
 		if(Input.GetKeyDown(KeyCode.Z))
 		{
@@ -284,9 +330,27 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 					BotEnemy chosenEnemy = hitInfo.collider.gameObject.GetComponent<BotEnemy>();
 					int indexList = tMan.enemies.IndexOf(chosenEnemy);
 					pickedEnemy = tMan.enemies[indexList];
-					
+
 					if(tMap.inRangeTiles.Contains(tMap.tiles[pickedEnemy.tilePosition]))
 					{
+						// check the player's direction and enemy's to determine side/back attack bonus
+						int angle = Mathf.RoundToInt(Quaternion.Angle(tMan.currentTurn.transform.rotation, pickedEnemy.transform.rotation));
+						if(angle == 0)
+						{
+							print ("back attack!");
+							tMan.currentTurn.modifiedAttack += 10;
+						}
+						else if(angle == 90)
+						{
+							print ("side attack!");
+							tMan.currentTurn.modifiedAttack += 5;
+						}
+						else if(angle == 180)
+						{
+							print("normal attack!");
+						}
+
+						// hide tactic scene and show war scene
 						tMan.tacticScene.SetActive(false);
 						TurnManager.instance.warScene.SetActive(true);
 						WarSceneManager.instance.InitializeWar(tMan.currentTurn.gameObject, pickedEnemy.gameObject);
@@ -326,7 +390,8 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			tMan.players.Remove((HumanPlayer)tMan.currentTurn);
 			tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;
 		}
-		else
+
+		if(pickedEnemy.currentHealth <= 0)
 		{
 			Destroy(pickedEnemy.gameObject);
 			tMan.enemies.Remove(pickedEnemy);
@@ -350,13 +415,39 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		if(totalTurn > 0)
 			totalTurn--;
 		
-		if(totalTurn == 0)
+
+		playerState = PlayerState.Facing;
+	}
+
+	void ChooseDirection()
+	{
+		if(Input.GetKeyDown(KeyCode.UpArrow))
 		{
-			playerState = PlayerState.End;
+			tMan.currentTurn.Rotate("north");
 		}
-		else
+		if(Input.GetKeyDown(KeyCode.RightArrow))
 		{
-			playerState = PlayerState.Pick;
+			tMan.currentTurn.Rotate("east");
+		}
+		if(Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			tMan.currentTurn.Rotate("south");
+		}
+		if(Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			tMan.currentTurn.Rotate("west");
+		}
+
+		if(Input.GetKeyDown(KeyCode.Z))
+		{
+			if(totalTurn == 0)
+			{
+				playerState = PlayerState.End;
+			}
+			else
+			{
+				playerState = PlayerState.Pick;
+			}
 		}
 	}
 
@@ -388,20 +479,29 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 		GUI.Label (new Rect (20, 15, 200, 100), "Player >> " + playerState);
 
+		
+		if(playerState == PlayerState.Pick)
+		{
+			if(showPlayerInfo)
+			{
+				GUI.Box (new Rect(10, Screen.height * 0.8f, 100, 50), "HP : " + highlightPlayer.currentHealth + "\n" +
+			         "Units : " + highlightPlayer.currentUnits);
+			}
+		}
+
 		if (playerState == PlayerState.Menu) 
 		{
-
 			GUI.enabled = tMan.currentTurn.moveEnabled;
 			GUI.SetNextControlName(buttonNames[0]);
 			buttons[0] = GUI.Button (new Rect (playerPositionOnScreen.x+20, (Screen.height - playerPositionOnScreen.y)-50, 75, 25), buttonNames[0]);
 		
 			GUI.enabled = tMan.currentTurn.attackEnabled;
 			GUI.SetNextControlName(buttonNames[1]);
-			buttons[1] = GUI.Button (new Rect (playerPositionOnScreen.x+20, (Screen.height - playerPositionOnScreen.y)-25, 75, 25), buttonNames[1]);
+			buttons[1] = GUI.Button (new Rect (playerPositionOnScreen.x+20, playerPositionOnScreen.y-25, 75, 25), buttonNames[1]);
 						
 			GUI.enabled = tMan.currentTurn.waitEnabled;
 			GUI.SetNextControlName(buttonNames[2]);
-			buttons[2] = GUI.Button (new Rect (playerPositionOnScreen.x+20, (Screen.height - playerPositionOnScreen.y), 75, 25), buttonNames[2]);
+			buttons[2] = GUI.Button (new Rect (playerPositionOnScreen.x+20, playerPositionOnScreen.y, 75, 25), buttonNames[2]);
 		
 			if(Input.GetKeyDown(KeyCode.Z))
 			{
@@ -422,6 +522,14 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			}
 
 			GUI.FocusControl(buttonNames[selectedMenu]);
+		}
+
+		if(playerState == PlayerState.Facing)
+		{
+			GUI.Toggle(new Rect(playerPositionOnScreen.x - 7, playerPositionOnScreen.y, 75, 25), tMan.currentTurn.playerDirection == Player.Direction.South, "");
+			GUI.Toggle(new Rect(playerPositionOnScreen.x - 7, playerPositionOnScreen.y - 120, 75, 25), tMan.currentTurn.playerDirection == Player.Direction.North, "");
+			GUI.Toggle(new Rect(playerPositionOnScreen.x - 60, playerPositionOnScreen.y - 60, 75, 25), tMan.currentTurn.playerDirection == Player.Direction.West, "");
+			GUI.Toggle(new Rect(playerPositionOnScreen.x + 50, playerPositionOnScreen.y - 60, 75, 25), tMan.currentTurn.playerDirection == Player.Direction.East, "");
 		}
 	}
 }

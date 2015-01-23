@@ -16,7 +16,7 @@ public class PointerScript : MonoBehaviour {
 	private Vector3 endPosition;
 	private float t;
 	private float factor;
-	
+
 	void Start()
 	{
 		factor = 1.5f;
@@ -27,6 +27,9 @@ public class PointerScript : MonoBehaviour {
 		Vector3 temp = position;
 		temp.y = 10f;
 		transform.position = temp;
+
+		// prevent cusror's freezing that occurs when cursor is disabled while moving (should stop first to make isMoving false)
+		isMoving = false;
 	}
 	
 	public void Update() {

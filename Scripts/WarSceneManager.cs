@@ -24,12 +24,17 @@ public class WarSceneManager : MonoBehaviour {
 	int playerUnitsColumn;
 	int enemyUnitsRow;
 	int enemyUnitsColumn;
+	int unitsCounter;
 
 	Vector3 firstRowPlayerUnits;
 	Vector3 firstRowEnemyUnits;
 
 	bool animating;
 	bool showFormationMenu;
+	
+	int battleTime;
+	float startingTime;
+	public int limitTime= 60;
 
 	public enum BattleState
 	{
@@ -39,7 +44,6 @@ public class WarSceneManager : MonoBehaviour {
 		Halt_Battle,
 		Post_Battle
 	}
-
 	public BattleState battleState;
 
 	void Awake()
@@ -72,11 +76,22 @@ public class WarSceneManager : MonoBehaviour {
 		playerGeneral.transform.parent = troopsGameObject.transform;
 		playerTroops.Add(playerGeneral);
 
-
+		print ("general direction: " + playerGeneral.transform.forward);
 		/*
 		 * Spawn Player's squads
 		 */
-		firstRowPlayerUnits = playerUnitsSpawner.position;
+		for(int i = 0; i < playerGeneral.currentUnits; i++)
+		{
+			GameObject SpawnedUnit = Instantiate(player, playerUnitsSpawner.position, Quaternion.Euler(new Vector3(0,90,0))) as GameObject;
+			playerUnit = SpawnedUnit.GetComponent<Player>();
+			playerUnit.gameObject.AddComponent<PlayerAIController>();
+			playerUnit.GetComponent<NavMeshAgent>().enabled = true;
+			playerUnit.transform.parent = troopsGameObject.transform;
+			playerTroops.Add(playerUnit);
+		}
+		GeneralFormation();
+
+		/*firstRowPlayerUnits = playerUnitsSpawner.position;
 		if(playerGeneral.currentUnits >= 10)
 		{
 			playerUnitsRow = Mathf.CeilToInt(playerGeneral.currentUnits / 10);
@@ -88,7 +103,7 @@ public class WarSceneManager : MonoBehaviour {
 			playerUnitsColumn = (int)playerGeneral.currentUnits;
 		}
 
-		int unitsCounter = (int)playerGeneral.currentUnits;
+		unitsCounter = (int)playerGeneral.currentUnits;
 		for(int i = 0; i < playerUnitsRow; i++)
 		{
 			for(int j = 0; j < playerUnitsColumn; j++)
@@ -111,7 +126,7 @@ public class WarSceneManager : MonoBehaviour {
 			}
 			firstRowPlayerUnits.z = playerUnitsSpawner.position.z;
 			firstRowPlayerUnits.x -= 3;
-		}
+		}*/
 
 		/*
 		 * Spawn Enemy's General
@@ -123,7 +138,7 @@ public class WarSceneManager : MonoBehaviour {
 		enemyGeneral.GetComponent<NavMeshAgent>().enabled = true;
 		enemyGeneral.transform.parent = troopsGameObject.transform;
 		enemyTroops.Add(enemyGeneral);
-		
+
 		/*
 		 * Spawn Enemy's squads
 		 */
@@ -173,8 +188,9 @@ public class WarSceneManager : MonoBehaviour {
 			if(!animating)StartCoroutine("AnimateCamera");
 			break;
 		case BattleState.Pre_Battle:
-			animating = false;		// set back camera animation value to false
-			showFormationMenu = true;
+			animating = false;				// set camera animation value to false
+			showFormationMenu = true;		// show formation menu UI 
+			battleTime = 0;					// reset battle time to 0
 			break;
 		case BattleState.In_Battle:
 			InBattleMonitor();
@@ -197,7 +213,10 @@ public class WarSceneManager : MonoBehaviour {
 
 	void InBattleMonitor()
 	{
-		if(!playerGeneral.isAlive || !enemyGeneral.isAlive)
+		battleTime = (int)(Time.time - startingTime);
+
+		if(!playerGeneral.isAlive || !enemyGeneral.isAlive
+		   || battleTime >= limitTime)
 		{
 			battleState = BattleState.Post_Battle;
 		}
@@ -242,41 +261,188 @@ public class WarSceneManager : MonoBehaviour {
 		to.playerClass.BaseHP = from.currentHealth;
 		to.playerClass.TotalUnits = from.currentUnits;
 		to.playerClass.BaseAttack = from.modifiedAttack;
-		to.playerClass.BaseDefense = from.playerClass.BaseDefense;
+		to.playerClass.BaseDefense = from.modifiedDefense;
 	}
 
 	void OnGUI()
 	{
-		if(showFormationMenu)
+		if(battleState != BattleState.Preview)
 		{
-			if(GUI.Button(new Rect(10, 80, 100, 20), "Line"))
+			GUI.Label(new Rect(Screen.width/2, 0, 20, 20), battleTime.ToString());
+
+			if(showFormationMenu)
 			{
-				for(int i = 0; i < playerTroops.Count; i++)
+				if(GUI.Button(new Rect(10, 80, 100, 20), "Line"))
 				{
-					playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack;
-					playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense;
+					GeneralFormation();
+				}
+				if(GUI.Button(new Rect(10, 100, 100, 20), "Wedge"))
+				{
+					OffensiveFormation();
+				}
+				if(GUI.Button(new Rect(10, 120, 100, 20), "Phalanx"))
+				{
+					DefensiveFormation();
+				}
+				if(GUI.Button(new Rect(10, 160, 100, 20), "Start Battle"))
+				{
+					showFormationMenu = false;
+					startingTime = Time.time;
+					battleState = BattleState.In_Battle;
+
+					for(int i = 0; i < playerTroops.Count; i++)
+					{
+						if(playerTroops[i] != playerGeneral)
+						{
+							playerTroops[i].GetComponent<PlayerAIController>().botState = PlayerAIController.BotState.Targeting;
+						}
+					}
 				}
 			}
-			if(GUI.Button(new Rect(10, 100, 100, 20), "Wedge"))
+		}
+	}
+
+	void GeneralFormation()
+	{
+		int column = 1, maxPerRow = 10;
+		float addition = 0;
+		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
+		firstRowPlayerUnits = centerPosition;
+
+		for(int i = 0; i < playerTroops.Count; i++)
+		{
+			playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack;
+			playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense;
+
+			if(playerTroops[i] != playerGeneral)
 			{
-				for(int i = 0; i < playerTroops.Count; i++)
+				if(column % 2 == 1)
 				{
-					playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack + 10;
-					playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense - 10;
+					firstRowPlayerUnits.z = centerPosition.z + (2.5f + addition);
+				}
+				else
+				{
+					firstRowPlayerUnits.z = centerPosition.z - (2.5f + addition);
+					addition += 5;
+				}
+
+				playerTroops[i].transform.position = firstRowPlayerUnits;
+				column++;
+
+				// go to next row if column exceeds maximum per row
+				if(column > maxPerRow)
+				{
+					column = 1;
+					addition = 0;
+					firstRowPlayerUnits.x -= 5;
 				}
 			}
-			if(GUI.Button(new Rect(10, 120, 100, 20), "Phalanx"))
+		}
+	}
+
+	void OffensiveFormation()
+	{	
+		int column = 1, row = 1;
+		float addition = 0;
+
+		// center position of each row (invisible in-game), used to determine column position as well
+		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
+		firstRowPlayerUnits = centerPosition; // put the guy at center position
+
+		for(int i = 0; i < playerTroops.Count; i++)
+		{
+			playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack + 10;
+			playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense - 10;
+
+			if(playerTroops[i] != playerGeneral)
 			{
-				for(int i = 0; i < playerTroops.Count; i++)
+					// even row
+					if(row % 2 == 0)		
+					{
+						if(column % 2 == 1)
+						{
+							firstRowPlayerUnits.z = centerPosition.z + (2 + addition);	// odd column-guy goes to the left
+						}
+						else
+						{
+							firstRowPlayerUnits.z = centerPosition.z - (2 + addition);	// even column-guy goes to the right
+
+							// additional factor is added here in even column because odd(left) -> even(right), back to odd again
+							addition += 4;				
+						}
+					}
+					// odd row except 1 (3, 5, 7, etc)
+					else if(row % 2 == 1)	
+					{
+						if(column == 1)
+						{
+							firstRowPlayerUnits.z = centerPosition.z;		// first column guy goes exactly at the center
+						}
+						else if(column % 2 == 1)
+						{
+							firstRowPlayerUnits.z = centerPosition.z - (4 + addition);	// odd column-guy goes to the right
+
+							// additional factor is added here in odd column because first(center) -> even(left) -> odd(right), back to even again
+							addition += 4;
+						}
+						else
+						{
+							firstRowPlayerUnits.z = centerPosition.z + (4 + addition);	// even column-guy goes to the left
+						}
+					}
+
+
+				playerTroops[i].transform.position = firstRowPlayerUnits;
+				column++;
+
+				// go to next row if column exceeds maximum per row (here, row = max per row)
+				if(column > row)
 				{
-					playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack - 10;
-					playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense + 10;
+					row++;
+					column = 1; 
+					addition = 0;
+
+					// next row will be set behind the current row
+					firstRowPlayerUnits.x -= 3;
 				}
 			}
-			if(GUI.Button(new Rect(10, 160, 100, 20), "Start Battle"))
+		}
+	}
+
+	void DefensiveFormation()
+	{
+		int column = 1, maxPerRow = 7;
+		float addition = 0;
+		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
+		firstRowPlayerUnits = centerPosition;
+
+		for(int i = 0; i < playerTroops.Count; i++)
+		{
+			playerTroops[i].modifiedAttack = playerTroops[i].playerClass.BaseAttack - 10;
+			playerTroops[i].modifiedDefense = playerTroops[i].playerClass.BaseDefense + 10;	
+
+			if(playerTroops[i] != playerGeneral)
 			{
-				showFormationMenu = false;
-				battleState = BattleState.In_Battle;	
+				if(column % 2 == 1)
+				{
+					firstRowPlayerUnits.z = centerPosition.z + (1.5f + addition);
+				}
+				else
+				{
+					firstRowPlayerUnits.z = centerPosition.z - (1.5f + addition);
+					addition += 3;
+				}
+				
+				playerTroops[i].transform.position = firstRowPlayerUnits;
+				column++;
+				
+				// go to next row if column exceeds maximum per row
+				if(column > maxPerRow)
+				{
+					column = 1;
+					addition = 0;
+					firstRowPlayerUnits.x -= 3;
+				}
 			}
 		}
 	}

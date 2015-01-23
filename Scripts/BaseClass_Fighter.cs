@@ -27,7 +27,7 @@ public class BaseClass_Fighter : BaseClass {
 	public override void BoostStats()
 	{
 		BaseHP += 150;
-		BaseAttack += 10;
+		BaseAttack += 100;
 	}
 
 	void Awake()

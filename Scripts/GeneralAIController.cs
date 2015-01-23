@@ -121,9 +121,7 @@ public class GeneralAIController : MonoBehaviour {
 			targetDirection = new Vector3(1f, 0f, 0f);
 		
 		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
-		
 		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
-		
 		rigidbody.MoveRotation(newRotation);
 	}
 	
