@@ -13,7 +13,7 @@ public class BaseClass_Apprentice : BaseClass {
 		BaseHP = 100;
 		BaseAttack = 20;
 		BaseDefense = 0;
-		TotalUnits = 50;
+		TotalUnits = 100;
 				
 		TileAttack = 2;
 

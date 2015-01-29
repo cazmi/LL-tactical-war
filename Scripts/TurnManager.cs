@@ -70,6 +70,9 @@ public class TurnManager : MonoBehaviour {
 		case TurnState.EnemyTurn:
 			if(!onGoingTurn) turnStateEnemyBot.InitializeAction();
 			break;
+		case TurnState.EndGame:
+			print("END GAME");
+			break;
 		}
 	}
 
@@ -85,7 +88,6 @@ public class TurnManager : MonoBehaviour {
 	{
 		if(players.Count == 0 || enemies.Count == 0)
 			turnState = TurnState.EndGame;
-
 	}
 
 	void OnGUI()

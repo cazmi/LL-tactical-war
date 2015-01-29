@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour {
 			float v = Input.GetAxis("Vertical");
 
 			Move(h, v);
+			//Move(v, h);
 		}
 	}
 
@@ -135,7 +136,9 @@ public class PlayerController : MonoBehaviour {
 			{
 				if(GUI.Button(new Rect(10, 80, 100, 20), "Advance"))
 				{
-
+					Time.timeScale = Convert.ToSingle(showUI);
+					showUI = !showUI;
+					WarSceneManager.instance.AdvanceCommand();
 				}
 				if(GUI.Button(new Rect(10, 100, 100, 20), "Cover Me"))
 				{
@@ -143,7 +146,10 @@ public class PlayerController : MonoBehaviour {
 				}
 				if(GUI.Button(new Rect(10, 120, 100, 20), "Fall Back"))
 				{
-
+					Time.timeScale = Convert.ToSingle(showUI);
+					showUI = !showUI;
+					//moveSpeed = 15f;
+					WarSceneManager.instance.FallBackCommand();
 				}
 			}
 		}

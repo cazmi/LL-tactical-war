@@ -77,18 +77,23 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		case PlayerState.Pick:			
 			pointerScript.gameObject.SetActive(true);
 			selectedMenu = 0;
+
 			PickPlayer();
 			break;
 		case PlayerState.Menu:
 			pointerScript.gameObject.SetActive(false);
+			pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
+
 			InMenu();
 			break;
 		case PlayerState.Move:
 			pointerScript.gameObject.SetActive(true);
+
 			Move();
 			break;
 		case PlayerState.Attack:
 			pointerScript.gameObject.SetActive(true);
+
 			Attack();
 			break;
 		case PlayerState.InBattle:
@@ -98,6 +103,9 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			Wait();
 			break;
 		case PlayerState.Facing:
+			pointerScript.gameObject.SetActive(false);
+			pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
+
 			ChooseDirection();
 			break;
 		case PlayerState.Animation:
@@ -171,8 +179,6 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 
 	void InMenu()
 	{
-		pointerScript.AdjustPosition(tMan.currentTurn.transform.position);
-
 		if (Input.GetKeyDown(KeyCode.X))
 		{
 			// if player has not committed any action, player can go back to pick state
@@ -264,7 +270,7 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 	// restore state before moving
 	void CancelMove()
 	{
-		tMan.currentTurn.transform.position = previousPosition;		// <<<<<<< inaccurate position
+		tMan.currentTurn.transform.position = previousPosition;		// <<<<<<< can sometimes cause inaccurate position
 		tMan.currentTurn.transform.rotation = previousRotation;
 
 		tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;	// enable previous occupied tile 								
@@ -389,6 +395,19 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 			Destroy(tMan.currentTurn.gameObject);
 			tMan.players.Remove((HumanPlayer)tMan.currentTurn);
 			tMap.tiles[tMan.currentTurn.tilePosition].reachable = true;
+
+			playerState = PlayerState.Wait;
+		}
+		else
+		{
+			if(!tMan.currentTurn.moveEnabled && !tMan.currentTurn.attackEnabled)
+			{
+				playerState = PlayerState.Wait;
+			}
+			else
+			{
+				playerState = PlayerState.Menu;
+			}
 		}
 
 		if(pickedEnemy.currentHealth <= 0)
@@ -399,25 +418,36 @@ public class TurnStatePlayerTurn : MonoBehaviour {
 		}
 
 		tMan.checkTacticResult();
-
+		
 		if(tMan.turnState == TurnManager.TurnState.EndGame)
+		{
 			playerState = PlayerState.None;
-		else if(!tMan.currentTurn.moveEnabled && !tMan.currentTurn.attackEnabled)
-			playerState = PlayerState.Wait;
-		else
-			playerState = PlayerState.Menu;
+		}
 	}
 
 	void Wait()
 	{
 		tMan.currentTurn.isTurnOver = true;
-
+		
 		if(totalTurn > 0)
 			totalTurn--;
-		
 
-		playerState = PlayerState.Facing;
-	}
+		if(tMan.currentTurn == null)
+		{
+			if(totalTurn == 0)
+			{
+				playerState = PlayerState.End;
+			}
+			else
+			{
+				playerState = PlayerState.Pick;
+			}
+		}
+		else
+		{
+			playerState = PlayerState.Facing;
+		}
+	}	
 
 	void ChooseDirection()
 	{

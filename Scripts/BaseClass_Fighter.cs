@@ -13,7 +13,7 @@ public class BaseClass_Fighter : BaseClass {
 		BaseHP = 100;
 		BaseAttack = 20;
 		BaseDefense = 0;
-		TotalUnits = 50;
+		TotalUnits = 100;
 
 		TileAttack = 1;
 
@@ -27,7 +27,7 @@ public class BaseClass_Fighter : BaseClass {
 	public override void BoostStats()
 	{
 		BaseHP += 150;
-		BaseAttack += 100;
+		BaseAttack += 10;
 	}
 
 	void Awake()

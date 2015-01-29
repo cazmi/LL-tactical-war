@@ -26,8 +26,11 @@ public class WarSceneManager : MonoBehaviour {
 	int enemyUnitsColumn;
 	int unitsCounter;
 
-	Vector3 firstRowPlayerUnits;
-	Vector3 firstRowEnemyUnits;
+	public Vector3[] initialPlayerPosition = new Vector3[100];
+	int initialPlayerIndex = 0;
+	public ArrayList occupiedPosition = new ArrayList();
+
+	Vector3 initialEnemyPosition;
 
 	bool animating;
 	bool showFormationMenu;
@@ -142,7 +145,7 @@ public class WarSceneManager : MonoBehaviour {
 		/*
 		 * Spawn Enemy's squads
 		 */
-		firstRowEnemyUnits = enemyUnitsSpawner.position;
+		initialEnemyPosition = enemyUnitsSpawner.position;
 		if(enemyGeneral.currentUnits >= 10)
 		{
 			enemyUnitsRow = Mathf.CeilToInt(enemyGeneral.currentUnits / 10);
@@ -159,14 +162,14 @@ public class WarSceneManager : MonoBehaviour {
 		{
 			for(int j = 0; j < enemyUnitsColumn; j++)	
 			{
-				GameObject SpawnedEnemyUnit = Instantiate(enemy, firstRowEnemyUnits, Quaternion.Euler(new Vector3(0,270,0))) as GameObject;
+				GameObject SpawnedEnemyUnit = Instantiate(enemy, initialEnemyPosition, Quaternion.Euler(new Vector3(0,270,0))) as GameObject;
 				enemyUnit = SpawnedEnemyUnit.GetComponent<Player>();
 				enemyUnit.gameObject.AddComponent<AIController>();
 				enemyUnit.GetComponent<NavMeshAgent>().enabled = true;
 				enemyUnit.transform.parent = troopsGameObject.transform;
 				enemyTroops.Add(enemyUnit);	
 				
-				firstRowEnemyUnits.z += 5;
+				initialEnemyPosition.z += 5;
 
 				unitsCounter--;
 				if(unitsCounter == 0)
@@ -175,8 +178,8 @@ public class WarSceneManager : MonoBehaviour {
 					break;
 				}
 			}
-			firstRowEnemyUnits.z = enemyUnitsSpawner.position.z;
-			firstRowEnemyUnits.x += 3;
+			initialEnemyPosition.z = enemyUnitsSpawner.position.z;
+			initialEnemyPosition.x += 3;
 		}
 	}
 
@@ -289,14 +292,7 @@ public class WarSceneManager : MonoBehaviour {
 					showFormationMenu = false;
 					startingTime = Time.time;
 					battleState = BattleState.In_Battle;
-
-					for(int i = 0; i < playerTroops.Count; i++)
-					{
-						if(playerTroops[i] != playerGeneral)
-						{
-							playerTroops[i].GetComponent<PlayerAIController>().botState = PlayerAIController.BotState.Targeting;
-						}
-					}
+					AdvanceCommand();
 				}
 			}
 		}
@@ -304,10 +300,11 @@ public class WarSceneManager : MonoBehaviour {
 
 	void GeneralFormation()
 	{
-		int column = 1, maxPerRow = 10;
+		int column = 1, maxPerRow = 20;
 		float addition = 0;
 		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
-		firstRowPlayerUnits = centerPosition;
+		initialPlayerPosition[0] = centerPosition;
+		initialPlayerIndex = 0;
 
 		for(int i = 0; i < playerTroops.Count; i++)
 		{
@@ -318,23 +315,33 @@ public class WarSceneManager : MonoBehaviour {
 			{
 				if(column % 2 == 1)
 				{
-					firstRowPlayerUnits.z = centerPosition.z + (2.5f + addition);
+					initialPlayerPosition[initialPlayerIndex].z = centerPosition.z + (2.5f + addition);	
 				}
 				else
 				{
-					firstRowPlayerUnits.z = centerPosition.z - (2.5f + addition);
+					initialPlayerPosition[initialPlayerIndex].z = centerPosition.z - (2.5f + addition);
 					addition += 5;
 				}
 
-				playerTroops[i].transform.position = firstRowPlayerUnits;
+				playerTroops[i].transform.position = initialPlayerPosition[initialPlayerIndex];
 				column++;
 
-				// go to next row if column exceeds maximum per row
-				if(column > maxPerRow)
+				// if troops spawned haven't reached the maximum number
+				if(i < playerTroops.Count - 1)
 				{
-					column = 1;
-					addition = 0;
-					firstRowPlayerUnits.x -= 5;
+					// go to next row if column exceeds maximum per row
+					if(column > maxPerRow)
+					{
+						column = 1;
+						addition = 0;
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x - 5;
+						
+					}
+					else
+					{
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x;
+					}
+					initialPlayerIndex++;
 				}
 			}
 		}
@@ -347,7 +354,8 @@ public class WarSceneManager : MonoBehaviour {
 
 		// center position of each row (invisible in-game), used to determine column position as well
 		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
-		firstRowPlayerUnits = centerPosition; // put the guy at center position
+		initialPlayerPosition[0] = centerPosition; // put the guy at center position
+		initialPlayerIndex = 0;
 
 		for(int i = 0; i < playerTroops.Count; i++)
 		{
@@ -361,11 +369,11 @@ public class WarSceneManager : MonoBehaviour {
 					{
 						if(column % 2 == 1)
 						{
-							firstRowPlayerUnits.z = centerPosition.z + (2 + addition);	// odd column-guy goes to the left
+							initialPlayerPosition[initialPlayerIndex].z = centerPosition.z + (2 + addition);	// odd column-guy goes to the left
 						}
 						else
 						{
-							firstRowPlayerUnits.z = centerPosition.z - (2 + addition);	// even column-guy goes to the right
+							initialPlayerPosition[initialPlayerIndex].z = centerPosition.z - (2 + addition);	// even column-guy goes to the right
 
 							// additional factor is added here in even column because odd(left) -> even(right), back to odd again
 							addition += 4;				
@@ -376,34 +384,44 @@ public class WarSceneManager : MonoBehaviour {
 					{
 						if(column == 1)
 						{
-							firstRowPlayerUnits.z = centerPosition.z;		// first column guy goes exactly at the center
+							initialPlayerPosition[initialPlayerIndex].z = centerPosition.z;		// first column guy goes exactly at the center
 						}
 						else if(column % 2 == 1)
 						{
-							firstRowPlayerUnits.z = centerPosition.z - (4 + addition);	// odd column-guy goes to the right
+							initialPlayerPosition[initialPlayerIndex].z = centerPosition.z - (4 + addition);	// odd column-guy goes to the right
 
 							// additional factor is added here in odd column because first(center) -> even(left) -> odd(right), back to even again
 							addition += 4;
 						}
 						else
 						{
-							firstRowPlayerUnits.z = centerPosition.z + (4 + addition);	// even column-guy goes to the left
+							initialPlayerPosition[initialPlayerIndex].z = centerPosition.z + (4 + addition);	// even column-guy goes to the left
 						}
 					}
 
 
-				playerTroops[i].transform.position = firstRowPlayerUnits;
+				playerTroops[i].transform.position = initialPlayerPosition[initialPlayerIndex];
 				column++;
 
-				// go to next row if column exceeds maximum per row (here, row = max per row)
-				if(column > row)
+				// if troops spawned haven't reached the maximum number
+				if(i < playerTroops.Count - 1)
 				{
-					row++;
-					column = 1; 
-					addition = 0;
+					// go to next row if column exceeds maximum per row (here, row = max per row)
+					if(column > row)
+					{
+						row++;
+						column = 1; 
+						addition = 0;
+						
+						// next row will be set behind the current row
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x - 3;
+					}
+					else
+					{
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x;
+					}
+					initialPlayerIndex++;
 
-					// next row will be set behind the current row
-					firstRowPlayerUnits.x -= 3;
 				}
 			}
 		}
@@ -411,10 +429,11 @@ public class WarSceneManager : MonoBehaviour {
 
 	void DefensiveFormation()
 	{
-		int column = 1, maxPerRow = 7;
+		int column = 1, maxPerRow = 10;
 		float addition = 0;
 		Vector3 centerPosition = new Vector3(playerSpawner.position.x - 5, playerSpawner.position.y, playerSpawner.position.z);
-		firstRowPlayerUnits = centerPosition;
+		initialPlayerPosition[0] = centerPosition;
+		initialPlayerIndex = 0;
 
 		for(int i = 0; i < playerTroops.Count; i++)
 		{
@@ -425,24 +444,59 @@ public class WarSceneManager : MonoBehaviour {
 			{
 				if(column % 2 == 1)
 				{
-					firstRowPlayerUnits.z = centerPosition.z + (1.5f + addition);
+					initialPlayerPosition[initialPlayerIndex].z = centerPosition.z + (1.5f + addition);
 				}
 				else
 				{
-					firstRowPlayerUnits.z = centerPosition.z - (1.5f + addition);
+					initialPlayerPosition[initialPlayerIndex].z = centerPosition.z - (1.5f + addition);
 					addition += 3;
 				}
 				
-				playerTroops[i].transform.position = firstRowPlayerUnits;
+				playerTroops[i].transform.position = initialPlayerPosition[initialPlayerIndex];
 				column++;
-				
-				// go to next row if column exceeds maximum per row
-				if(column > maxPerRow)
+
+				// if troops spawned haven't reached the maximum number
+				if(i < playerTroops.Count - 1)
 				{
-					column = 1;
-					addition = 0;
-					firstRowPlayerUnits.x -= 3;
+					// go to next row if column exceeds maximum per row
+					if(column > maxPerRow)
+					{
+						column = 1;
+						addition = 0;
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x - 3;
+					}
+					else
+					{
+						initialPlayerPosition[initialPlayerIndex + 1].x = initialPlayerPosition[initialPlayerIndex].x;
+					}
+					initialPlayerIndex++;
 				}
+			}
+		}
+	}
+
+	public void AdvanceCommand()
+	{
+		for(int i = 0; i < playerTroops.Count; i++)
+		{
+			if(playerTroops[i] != playerGeneral)
+			{
+				PlayerAIController playerAI = playerTroops[i].GetComponent<PlayerAIController>();
+				playerAI.TargetState();
+			}
+		}
+	}
+
+	public void FallBackCommand()
+	{
+		occupiedPosition.Clear();
+
+		for(int i = 0; i < playerTroops.Count; i++)
+		{
+			if(playerTroops[i] != playerGeneral)
+			{
+				PlayerAIController playerAI = playerTroops[i].GetComponent<PlayerAIController>();
+				playerAI.ChooseDestination();
 			}
 		}
 	}

@@ -29,5 +29,4 @@ public class BaseClass_Thief : BaseClass {
 		BaseHP += 150;
 		BaseAttack += 10;
 	}
-
 }
